@@ -1,6 +1,9 @@
 import base64
 import json
+import logging
 import typing
+
+logger = logging.getLogger(__name__)
 
 
 def get_scale_factors(width: int, height: int, tile_size: int = 256) -> [int]:
