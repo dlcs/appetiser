@@ -10,7 +10,6 @@ from .settings import (
 
 from .image import (
     is_tile_optimised_jp2,
-    get_kdu_ready_file,
 )
 
 logger = logging.getLogger(__name__)
@@ -50,8 +49,8 @@ def _ingest_image(source_path: pathlib.Path, dest_path: pathlib.Path):
 
 
 OPERATIONS = {
-    'ingest': _ingest,
-    'derivatives-only': _derivatives_only
+    'ingest': _ingest_image,
+    'derivatives-only': _generate_derivatives
 }
 
 
