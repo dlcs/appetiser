@@ -1,6 +1,4 @@
-import os
 import pathlib
-import pytest
 
 from PIL import Image
 
@@ -13,24 +11,30 @@ from app.jp2.image import (
 
 def test_is_tile_optimised_jp2_true():
     path = pathlib.Path('/path/to/a.jp2')
-    assert is_tile_optimised_jp2(path) == True
+    assert is_tile_optimised_jp2(path)
 
 
 def test_is_tile_optimised_jp2_false():
     path = pathlib.Path('/path/to/a.png')
-    assert is_tile_optimised_jp2(path) == False
+    assert not is_tile_optimised_jp2(path)
 
 
-def test_correct_img_orientation_none():
+def _compare_pil_images(img1, img2):
+    assert img1.size == img2.size
+    for x in range(img1.width):
+        for y in range(img1.height):
+            assert img1.getpixel((x, y)) == img2.getpixel((x, y))
+
+
+def test_correct_img_orientation_jpeg_none():
     img_path = pathlib.Path(__file__).parent / \
         'fixtures/_correct_img_orientation/0.jpeg'
     img = Image.open(img_path)
     corrected_img = _correct_img_orientation(img)
-    assert img.size == corrected_img.size
-    assert img.tobytes() == corrected_img.tobytes()
+    _compare_pil_images(img, corrected_img)
 
 
-def test_correct_img_orientation_1():
+def test_correct_img_orientation_jpeg_1():
     base_img_path = pathlib.Path(__file__).parent / \
         'fixtures/_correct_img_orientation/0.jpeg'
     img_path = pathlib.Path(__file__).parent / \
@@ -38,10 +42,10 @@ def test_correct_img_orientation_1():
     base_img = Image.open(base_img_path)
     img = Image.open(img_path)
     corrected_img = _correct_img_orientation(img)
-    assert img.size == corrected_img.size
-    assert base_img.tobytes() == corrected_img.tobytes()
+    _compare_pil_images(base_img, corrected_img)
 
-def test_correct_img_orientation_2():
+
+def test_correct_img_orientation_jpeg_2():
     base_img_path = pathlib.Path(__file__).parent / \
         'fixtures/_correct_img_orientation/0.jpeg'
     img_path = pathlib.Path(__file__).parent / \
@@ -49,11 +53,10 @@ def test_correct_img_orientation_2():
     base_img = Image.open(base_img_path)
     img = Image.open(img_path)
     corrected_img = _correct_img_orientation(img)
-    assert img.size == corrected_img.size
-    assert base_img.tobytes() == corrected_img.tobytes()
+    _compare_pil_images(base_img, corrected_img)
 
 
-def test_correct_img_orientation_3():
+def test_correct_img_orientation_jpeg_3():
     base_img_path = pathlib.Path(__file__).parent / \
         'fixtures/_correct_img_orientation/0.jpeg'
     img_path = pathlib.Path(__file__).parent / \
@@ -61,11 +64,10 @@ def test_correct_img_orientation_3():
     base_img = Image.open(base_img_path)
     img = Image.open(img_path)
     corrected_img = _correct_img_orientation(img)
-    assert img.size == corrected_img.size
-    assert base_img.tobytes() == corrected_img.tobytes()
+    _compare_pil_images(base_img, corrected_img)
 
 
-def test_correct_img_orientation_4():
+def test_correct_img_orientation_jpeg_4():
     base_img_path = pathlib.Path(__file__).parent / \
         'fixtures/_correct_img_orientation/0.jpeg'
     img_path = pathlib.Path(__file__).parent / \
@@ -73,11 +75,10 @@ def test_correct_img_orientation_4():
     base_img = Image.open(base_img_path)
     img = Image.open(img_path)
     corrected_img = _correct_img_orientation(img)
-    assert img.size == corrected_img.size
-    assert base_img.tobytes() == corrected_img.tobytes()
+    _compare_pil_images(base_img, corrected_img)
 
 
-def test_correct_img_orientation_5():
+def test_correct_img_orientation_jpeg_5():
     base_img_path = pathlib.Path(__file__).parent / \
         'fixtures/_correct_img_orientation/0.jpeg'
     img_path = pathlib.Path(__file__).parent / \
@@ -85,11 +86,10 @@ def test_correct_img_orientation_5():
     base_img = Image.open(base_img_path)
     img = Image.open(img_path)
     corrected_img = _correct_img_orientation(img)
-    assert img.size == corrected_img.size
-    assert base_img.tobytes() == corrected_img.tobytes()
+    _compare_pil_images(base_img, corrected_img)
 
 
-def test_correct_img_orientation_6():
+def test_correct_img_orientation_jpeg_6():
     base_img_path = pathlib.Path(__file__).parent / \
         'fixtures/_correct_img_orientation/0.jpeg'
     img_path = pathlib.Path(__file__).parent / \
@@ -97,11 +97,10 @@ def test_correct_img_orientation_6():
     base_img = Image.open(base_img_path)
     img = Image.open(img_path)
     corrected_img = _correct_img_orientation(img)
-    assert img.size == corrected_img.size
-    assert base_img.tobytes() == corrected_img.tobytes()
+    _compare_pil_images(base_img, corrected_img)
 
 
-def test_correct_img_orientation_7():
+def test_correct_img_orientation_jpeg_7():
     base_img_path = pathlib.Path(__file__).parent / \
         'fixtures/_correct_img_orientation/0.jpeg'
     img_path = pathlib.Path(__file__).parent / \
@@ -109,11 +108,10 @@ def test_correct_img_orientation_7():
     base_img = Image.open(base_img_path)
     img = Image.open(img_path)
     corrected_img = _correct_img_orientation(img)
-    assert img.size == corrected_img.size
-    assert base_img.tobytes() == corrected_img.tobytes()
+    _compare_pil_images(base_img, corrected_img)
 
 
-def test_correct_img_orientation_8():
+def test_correct_img_orientation_jpeg_8():
     base_img_path = pathlib.Path(__file__).parent / \
         'fixtures/_correct_img_orientation/0.jpeg'
     img_path = pathlib.Path(__file__).parent / \
@@ -121,5 +119,4 @@ def test_correct_img_orientation_8():
     base_img = Image.open(base_img_path)
     img = Image.open(img_path)
     corrected_img = _correct_img_orientation(img)
-    assert img.size == corrected_img.size
-    assert base_img.tobytes() == corrected_img.tobytes()
+    _compare_pil_images(base_img, corrected_img)

@@ -1,15 +1,9 @@
 import logging
 import typing
-import os
 import pathlib
 
 from .settings import (
-    KDU_COMPRESS_CMD,
     OUTPUT_DIR,
-)
-
-from .image import (
-    is_tile_optimised_jp2,
 )
 
 logger = logging.getLogger(__name__)
