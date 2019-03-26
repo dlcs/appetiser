@@ -1,14 +1,15 @@
 import io
 import logging
 import pathlib
-import subprocess
 
 from PIL import (
     Image,
     ImageCms,
 )
 
-import settings as app_settings
+from .utils import (
+    scale_dimensions_to_fit
+)
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +135,7 @@ def _rasterise_pdf(filepath: pathlib.Path) -> pathlib.Path:
     pass
 
 
-def prepare_source_file(filepath: pathlib.Path) -> pathlib.Path:
+def prepare_source_file(filepath: pathlib.Path) -> (pathlib.Path, str):
     """ Prepares a source file for processing by kakadu by establishing the
         format and converting as required.
         From kdu_compress -usage:
@@ -159,86 +160,16 @@ def prepare_source_file(filepath: pathlib.Path) -> pathlib.Path:
     return f(filepath)
 
 
-def _kdu_compress(img_source_path: pathlib.Path, optimisation: str, image_mode: str) -> pathlib.Path:
-
-    image_modes = {
-        'L': '-no_palette',
-        '1': '-no_palette',
-        'RGB': '-jp2_space sRGB',
-        'RGBA': '-jp2_space sRGB -jp2_alpha'
-    }
-
-    kdu_compress_templates = {
-        'kdu_low':  '{kdu_path} -i {input_path} -o {output_path} Clevels=7 "Cblk={{64,64}}"'
-        ' "Cuse_sop=yes" {image_mode} "ORGgen_plt=yes" "ORGtparts=R" "Corder=RPCL" -rate 0.5'
-        ' "Cprecincts={{256,256}},{{256,256}},{{256,256}},{{128,128}},{{128,128}},{{64,64}},'
-        '{{64,64}},{{32,32}},{{16,16}}"',
-        'kdu_med':  '{kdu_path} -i {input_path} -o {output_path} Clevels=7 "Cblk={{64,64}}"'
-        '"Cuse_sop=yes" {image_mode} "ORGgen_plt=yes" "ORGtparts=R" "Corder=RPCL" -rate 2'
-        '"Cprecincts={{256,256}},{{256,256}},{{256,256}},{{128,128}},{{128,128}},{{64,64}},'
-        '{{64,64}},{{32,32}},{{16,16}}"',
-        'kdu_med_layers':  '{kdu_path} -i {input_path} -o {output_path} Clevels=7 "Cblk={{64,64}}"'
-        ' "Cuse_sop=yes" {image_mode} "ORGgen_plt=yes" "ORGtparts=R" "Corder=RPCL" Clayers=6 -rate 2'
-        ' "Cprecincts={{256,256}},{{256,256}},{{256,256}},{{128,128}},{{128,128}},{{64,64}},'
-        '{{64,64}},{{32,32}},{{16,16}}"',
-        'kdu_high': '{kdu_path} -i {input_path} -o {output_path} Clevels=7 "Cblk={{64,64}}"'
-        ' "Cuse_sop=yes" {image_mode} "ORGgen_plt=yes" "ORGtparts=R" "Corder=RPCL" -rate 4'
-        ' "Cprecincts={{256,256}},{{256,256}},{{256,256}},{{128,128}},{{128,128}},{{64,64}},'
-        '{{64,64}},{{32,32}},{{16,16}}"',
-        'kdu_max':  '{kdu_path} -i {input_path} -o {output_path} Clevels=7 "Cblk={{64,64}}"'
-        ' "Cuse_sop=yes" {image_mode} "ORGgen_plt=yes" "ORGtparts=R" "Corder=RPCL" -rate -'
-        ' "Cprecincts={{256,256}},{{256,256}},{{256,256}},{{128,128}},{{128,128}},{{64,64}},'
-        '{{64,64}},{{32,32}},{{16,16}}"',
-    }
-
-    compress_env = {
-        'LD_LIBRARY_PATH': KDU_LIB,
-        'PATH': KDU_COMPRESS
-    }
-
-    kdu_compress_template = kdu_compress_templates.get(
-        optimisation, kdu_compress_templates['kdu_med'])
-
-    kdu_compress_command = kdu_compress_template.format(
-        kdu_path=KDU_COMPRESS,
-        input_path=img_source_path,
-        output_path=jp2_output_path,
-        image_mode=image_mode
-    )
-
-    try:
-        result_code = subprocess.run(kdu_compress_command,
-                                     env=compress_env,
-                                     shell=True,
-                                     check=True
-                                     )
-    except CalledProcessError as e:
-        return
-
-
-def make_derivatives():
-    pass
-
-
-def get_reduced_image_from_kdu(jp2, size):
-    pass
-
-
-def get_scale_factors(width, height):
-    pass
-
-
-def scales_to_reduce_arg(jp2, size):
-    pass
-
-
-def confine(w, h, req_w, req_h):
-    pass
-
-
-def get_closest_scale(req_w, req_h, full_w, full_h, scales):
-    pass
-
-
-def scale_dim(dim, scale):
-    pass
+def resize_and_save_img(img: Image, size: int, dest_path: pathlib.Path) -> Image:
+    """ Resize a PIL Image so that it fits within a square of the provided size,
+        and saves this file to the provided dest_path.
+        Returns the Image to allow for progressive scaling down for multiple sizes,
+        which is significantly faster than scaling down from a full resolution image.
+        """
+    scaled_width, scaled_height = scale_dimensions_to_fit(
+        img.width, img.height, size, size)
+    img = img.resize((scaled_width, scaled_height), resample=Image.ANTIALIAS)
+    logger.debug('Image resized to (%s, %s)', scaled_width, scaled_height)
+    img.save(dest_path, quality=90)
+    logger.debug('Resized image saved to: %s', dest_path)
+    return img

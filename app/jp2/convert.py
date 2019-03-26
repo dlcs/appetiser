@@ -6,6 +6,16 @@ from .settings import (
     OUTPUT_DIR,
 )
 
+from .image import (
+    prepare_source_file,
+    resize_and_save_img
+)
+
+from .kdu import (
+    kdu_compress,
+    kdu_expand_to_image
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -37,9 +47,30 @@ def _generate_derivatives():
     pass
 
 
-def _ingest_image(source_path: pathlib.Path, dest_path: pathlib.Path):
-    kdu_ready, image_mode = get_kdu_ready_file(source_path)
-    pass
+def _format_derivative_info(img: Image, dest_path: pathlib.Path) -> dict:
+    logger.debug('%s: formatting thumbnail information', dest_path)
+    return {
+        'path': str(dest_path),
+        'width': img.width,
+        'height': img.height
+    }
+
+
+def _make_derivatives(source_path: pathlib.Path, derivative_sizes: [int], output_dir: pathlib.Path) -> list:
+    img = kdu_expand_to_image(source_path)
+    derivative_info = []
+    for size in sorted(derivative_sizes, reverse=True):
+        dest_path = output_dir / '{}_{}.jpg'.format(source_path.stem, size)
+        img = resize_and_save_img(img, size, dest_path)
+        derivative_info.append(
+            _format_derivative_info(img, dest_path)
+        )
+    return derivative_info
+
+
+def _ingest_image(source_path: pathlib.Path, dest_path: pathlib.Path, optimisation: str):
+    prepared_source_path, image_mode = prepare_source_file(source_path)
+    dest_path = kdu_compress(source_image, dest_path, optimisation, image_mode)
 
 
 OPERATIONS = {

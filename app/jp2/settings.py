@@ -1,8 +1,7 @@
-KDU_COMPRESS = '/usr/local/bin/kdu_compress'
-KDU_EXPAND = '/usr/local/bin/kdu_expand'
+import os
+
+KDU_COMPRESS = os.environ.get('KDU_COMPRESS')
+KDU_EXPAND = os.environ.get('KDU_EXPAND')
+KDU_LIB = os.environ.get('KDU_LIB')
 
 OUTPUT_DIR = '/opt/tizer/out/'
-TMP_DIR = '/opt/tizer/tmp/'
-
-KDU_LIB = '/usr/local/bin'
-MKFIFO = '/usr/bin/mkfifo'
