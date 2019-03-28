@@ -1,3 +1,4 @@
+import decimal
 import io
 import logging
 import pathlib
@@ -5,10 +6,6 @@ import pathlib
 from PIL import (
     Image,
     ImageCms,
-)
-
-from .utils import (
-    scale_dimensions_to_fit
 )
 
 logger = logging.getLogger(__name__)
@@ -21,16 +18,29 @@ def is_tile_optimised_jp2(filepath: pathlib.Path) -> bool:
     return filepath.suffix == '.jp2'
 
 
-def _get_img_mode(filepath: pathlib.Path) -> (pathlib.Path, str):
+def _extract_img_info(img: Image) -> dict:
+    """ Extract a properties from a PIL Image and store in a dict
+        for use as part of subsequent processing.
+        """
+    logger.debug('%s: mode - %s, width - %s, height - %s',
+                 img.filename, img.mode, img.width, img.height)
+    return {
+        'mode': img.mode,
+        'height': img.height,
+        'width': img.width
+    }
+
+
+def get_img_info(filepath: pathlib.Path) -> (pathlib.Path, str):
     """ For file formats that don't require conversion or other preparation
         before being converted to JPEG2000, this will open the file
-        and get the image mode for use in the conversion process.
+        and get the image height, width and mode for use in the conversion
+        process.
         """
     logger.debug('%s: file does not require preparation', filepath)
     with Image.open(filepath) as img:
-        img_mode = img.mode
-        logger.debug('%s: image mode %s', filepath, img_mode)
-    return filepath, img_mode
+        img_info = _extract_img_info(img)
+    return filepath, img_info
 
 
 def _uncompress_tiff(filepath: pathlib.Path) -> (pathlib.Path, str):
@@ -40,8 +50,7 @@ def _uncompress_tiff(filepath: pathlib.Path) -> (pathlib.Path, str):
         conversion process.
         """
     with Image.open(filepath) as img:
-        img_mode = img.mode
-        logger.debug('%s: image mode %s', filepath, img_mode)
+        img_info = _extract_img_info(img)
         compression = img.info.get('compression')
         if compression != 'raw':
             logger.debug(
@@ -50,7 +59,7 @@ def _uncompress_tiff(filepath: pathlib.Path) -> (pathlib.Path, str):
             logger.debug('%s: saving as raw to %s', filepath, tiff_filepath)
             img.save(tiff_filepath, compression=None)
             filepath = tiff_filepath
-    return filepath, img_mode
+    return filepath, img_info
 
 
 def _correct_img_orientation(img: Image, img_filename: str = '') -> Image:
@@ -97,16 +106,17 @@ def _convert_img_colour_profile(img: Image, img_filename: str = '') -> Image:
             '%s: extracting embedded colour profile', img_filename)
         img_colour_profile = ImageCms.ImageCmsProfile(
             io.BytesIO(img_colour_profile_bytes))
+        img_colour_profile_name = ImageCms.getProfileName(img_colour_profile)
         logger.debug('%s: icc colour profile %s', img_filename,
-                     img_colour_profile.profile_description)
+                     img_colour_profile_name)
         sRGB_profile = ImageCms.createProfile('sRGB')
         logger.debug('%s: converting colour profile from %s to %s',
                      img_filename,
-                     img_colour_profile.profile_description,
+                     img_colour_profile_name,
                      sRGB_profile.profile_description
                      )
         img = ImageCms.profileToProfile(
-            img, img_colour_profile, sRGB_profile)
+            img, img_colour_profile, sRGB_profile, outputMode='RGB')
 
     return img
 
@@ -119,8 +129,7 @@ def _convert_img_to_tiff(filepath: pathlib.Path) -> (pathlib.Path, str):
         """
     with Image.open(filepath) as img:
         img_filename = img.filename
-        img_mode = img.mode
-        logger.debug('%s: image mode %s', filepath, img_mode)
+        img_info = _extract_img_info(img)
         img = _correct_img_orientation(img, img_filename)
         img = _convert_img_colour_profile(img, img_filename)
         tiff_filepath = filepath.parent.joinpath(
@@ -128,7 +137,7 @@ def _convert_img_to_tiff(filepath: pathlib.Path) -> (pathlib.Path, str):
         logger.debug('%s: saving as raw to %s',
                      filepath, tiff_filepath)
         img.save(tiff_filepath, compression=None)
-    return tiff_filepath, img_mode
+    return tiff_filepath, img_info
 
 
 def _rasterise_pdf(filepath: pathlib.Path) -> pathlib.Path:
@@ -145,12 +154,12 @@ def prepare_source_file(filepath: pathlib.Path) -> (pathlib.Path, str):
         point files), as determined by the file suffix.
         """
     img_file_funcs = {
-        '.bmp': _get_img_mode,
-        '.raw': _get_img_mode,
-        '.pbm': _get_img_mode,
-        '.pgm': _get_img_mode,
-        '.ppm': _get_img_mode,
-        '.jp2': _get_img_mode,  # TODO convert to tiff if JP2 not tile-ready.
+        '.bmp': get_img_info,
+        '.raw': get_img_info,
+        '.pbm': get_img_info,
+        '.pgm': get_img_info,
+        '.ppm': get_img_info,
+        '.jp2': get_img_info,  # TODO convert to tiff if JP2 not tile-ready.
         '.pdf': _rasterise_pdf,
         '.tif': _uncompress_tiff,
         '.tiff': _uncompress_tiff,
@@ -160,13 +169,39 @@ def prepare_source_file(filepath: pathlib.Path) -> (pathlib.Path, str):
     return f(filepath)
 
 
+def _scale_dimensions_to_fit(width: int, height: int, req_width: int, req_height: int) -> (int, int):
+    """ For a given width and height, scale these such that they will fit within
+        the required height and width by reducing them by an appropriate scale
+        factor.
+        Setting the precision of the Decimal context _may_ be included to allow
+        for parity with .net components that use this precision (i.e. no off-by-one
+        scaling issues).
+        """
+    if width <= req_width and height <= req_height:
+        logger.debug('(%s, %s): Dimensions do not need scaling.')
+        return width, height
+    decimal.getcontext().prec = 17
+    dec_width = decimal.Decimal(width)
+    dec_height = decimal.Decimal(height)
+    dec_req_width = decimal.Decimal(req_width)
+    dec_req_height = decimal.Decimal(req_height)
+    scale = min(dec_req_width/dec_width, dec_req_height/dec_height)
+    logger.debug('(%s, %s): to fit within (%s, %s) requires a scale factor of %s',
+                 dec_width, dec_height, dec_req_width, dec_req_height, scale)
+    scaled_int_width = int((dec_width * scale).to_integral_exact())
+    scaled_int_height = int((dec_height * scale).to_integral_exact())
+    logger.debug('(%s, %s): scaled to (%s, %s)', dec_width,
+                 dec_height, scaled_int_width, scaled_int_height)
+    return scaled_int_width, scaled_int_height
+
+
 def resize_and_save_img(img: Image, size: int, dest_path: pathlib.Path) -> Image:
     """ Resize a PIL Image so that it fits within a square of the provided size,
         and saves this file to the provided dest_path.
         Returns the Image to allow for progressive scaling down for multiple sizes,
         which is significantly faster than scaling down from a full resolution image.
         """
-    scaled_width, scaled_height = scale_dimensions_to_fit(
+    scaled_width, scaled_height = _scale_dimensions_to_fit(
         img.width, img.height, size, size)
     img = img.resize((scaled_width, scaled_height), resample=Image.ANTIALIAS)
     logger.debug('Image resized to (%s, %s)', scaled_width, scaled_height)

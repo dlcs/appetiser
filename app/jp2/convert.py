@@ -2,11 +2,17 @@ import logging
 import typing
 import pathlib
 
+from PIL import (
+    Image,
+)
+
 from .settings import (
     OUTPUT_DIR,
 )
 
 from .image import (
+    is_tile_optimised_jp2,
+    get_img_info,
     prepare_source_file,
     resize_and_save_img
 )
@@ -19,7 +25,7 @@ from .kdu import (
 logger = logging.getLogger(__name__)
 
 
-def _error(message: str = 'Unknown operation') -> dict:
+def _error(message: str = 'Unknown operation', **kwargs) -> dict:
     return {
         'status': 'error',
         'message': message
@@ -37,14 +43,6 @@ def _format_paths(source: str, dest: str = '') -> typing.Tuple[pathlib.Path, pat
         dest_path = pathlib.Path(OUTPUT_DIR).joinpath(
             source_path.stem).with_suffix('.jp2')
     return source_path, dest_path
-
-
-def _generate_derivatives():
-    if file_type != 'jp2':
-        return _error(
-            'File type must be JPEG2000 for derivatives-only operation.'
-        )
-    pass
 
 
 def _format_derivative_info(img: Image, dest_path: pathlib.Path) -> dict:
@@ -65,32 +63,58 @@ def _make_derivatives(source_path: pathlib.Path, derivative_sizes: [int], output
         derivative_info.append(
             _format_derivative_info(img, dest_path)
         )
-    return derivative_info
+    return {'thumbs': derivative_info}
 
 
 def _ingest_image(source_path: pathlib.Path, dest_path: pathlib.Path, optimisation: str):
-    prepared_source_path, image_mode = prepare_source_file(source_path)
-    dest_path = kdu_compress(source_image, dest_path, optimisation, image_mode)
+    """
+        """
+    logger.debug('%s: Preparing file for ingest.', source_path)
+    prepared_source_path, image_info = prepare_source_file(source_path)
+    if is_tile_optimised_jp2(prepared_source_path):
+        logger.debug('%s: Already a JPEG2000, copying to %s.',
+                     source_path, dest_path)
+        shutil.copy(source_path, dest_path)
+        return dest_path, image_info
+    else:
+        image_mode = image_info.get('mode')
+        logger.debug('%s: Being used for conversion to JPEG2000, with colour mode: %s',
+                     prepared_source_path, image_mode)
+        kdu_compress(source_image, dest_path, optimisation, image_mode)
+        return dest_path, image_info
 
 
-OPERATIONS = {
-    'ingest': _ingest_image,
-    'derivatives-only': _generate_derivatives
-}
+def _derivatives_operation(source_path: pathlib.Path, thumbnail_dir: pathlib.Path, thumbnail_sizes: [int], **kwargs) -> (pathlib.Path, dict, dict):
+    """ Only
+        """
+    if not is_tile_optimised_jp2(source_path):
+        return _error(
+            'File type must be JPEG2000 for derivatives-only operation.'
+        )
+    else:
+        _, image_info = get_img_info(source_path)
+        derivative_info = _make_derivatives(
+            source_path, thumbnail_sizes, thumbnail_dir)
+        return source_path, image_info, derivative_info
 
 
-def process(
-        source: str,
-        dest: str = '',
-        bounded_sizes: typing.List = list(),
-        bounded_dir: str = '',
-        optimisation: str = 'kdu_med',
-        jpeg_info_id='ID',
-        operation: str = 'ingest',
-):
+def _ingest_operation(source_path: pathlib.Path, dest_path: pathlib.Path, thumbnail_dir: pathlib.Path, thumbnail_sizes: typing.List = list(), kakadu_optimisation: str = 'kdu_med', image_id='ID') -> (pathlib.Path, dict, dict):
+    ingested_path, image_info = _ingest_image(
+        source_path, dest_path, kakadu_optimisation)
+    derivative_info = _make_derivatives(
+        ingested_image, thumbnail_sizes, thumbnail_dir)
+    return ingested_path, image_info, derivative_info
+
+
+def process(source_path: pathlib.Path, dest_path: pathlib.Path, thumbnail_dir: pathlib.Path, thumbnail_sizes: typing.List = list(), kakadu_optimisation: str = 'kdu_med', image_id='ID', operation: str = 'ingest'):
+
+    OPERATIONS = {
+        'ingest': _ingest_operation,
+        'derivatives-only': _derivatives_operation
+    }
 
     op_func = OPERATIONS.get(operation, _error)
-    source_path, dest_path = _format_paths(source, dest)
-    # if is_tile_optimised_jp2(source_path):
+    result = op_func(source_path, dest_path, thumbnail_dir,
+                     thumbnail_sizes, kakadu_optimisation, image_id)
 
     return result

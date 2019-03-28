@@ -1,16 +1,16 @@
-from app.jp2.info import (
-    get_scale_factors,
+from app.response_utils import (
+    _get_scale_factors,
     iiif_image_info_json,
     b64_encode_json
 )
 
 
 def test_get_scale_factors():
-    scale_factors = get_scale_factors(1, 2048)
+    scale_factors = _get_scale_factors(1, 2048)
     assert scale_factors == [1, 2, 4, 8]
-    scale_factors = get_scale_factors(2048, 1)
+    scale_factors = _get_scale_factors(2048, 1)
     assert scale_factors == [1, 2, 4, 8]
-    scale_factors = get_scale_factors(1, 2056)
+    scale_factors = _get_scale_factors(1, 2056)
     assert scale_factors == [1, 2, 4, 8, 16]
 
 
