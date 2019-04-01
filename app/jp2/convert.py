@@ -1,4 +1,5 @@
 import logging
+import shutil
 import typing
 import pathlib
 
@@ -63,7 +64,7 @@ def _make_derivatives(source_path: pathlib.Path, derivative_sizes: [int], output
         derivative_info.append(
             _format_derivative_info(img, dest_path)
         )
-    return {'thumbs': derivative_info}
+    return derivative_info
 
 
 def _ingest_image(source_path: pathlib.Path, dest_path: pathlib.Path, optimisation: str):
@@ -80,11 +81,13 @@ def _ingest_image(source_path: pathlib.Path, dest_path: pathlib.Path, optimisati
         image_mode = image_info.get('mode')
         logger.debug('%s: Being used for conversion to JPEG2000, with colour mode: %s',
                      prepared_source_path, image_mode)
-        kdu_compress(source_image, dest_path, optimisation, image_mode)
+        kdu_compress(prepared_source_path, dest_path, optimisation, image_mode)
         return dest_path, image_info
 
 
-def _derivatives_operation(source_path: pathlib.Path, thumbnail_dir: pathlib.Path, thumbnail_sizes: [int], **kwargs) -> (pathlib.Path, dict, dict):
+def _derivatives_operation(source_path: pathlib.Path,
+                           thumbnail_dir: pathlib.Path,  # TODO: shouldn't need to provide thumbnail dir
+                           thumbnail_sizes: [int], **kwargs) -> dict:
     """ Only
         """
     if not is_tile_optimised_jp2(source_path):
@@ -95,26 +98,38 @@ def _derivatives_operation(source_path: pathlib.Path, thumbnail_dir: pathlib.Pat
         _, image_info = get_img_info(source_path)
         derivative_info = _make_derivatives(
             source_path, thumbnail_sizes, thumbnail_dir)
-        return source_path, image_info, derivative_info
+        return {
+            'jp2': source_path,
+            'height': image_info.get('height'),
+            'width': image_info.get('width'),
+            'thumbs': derivative_info
+        }
 
 
-def _ingest_operation(source_path: pathlib.Path, dest_path: pathlib.Path, thumbnail_dir: pathlib.Path, thumbnail_sizes: typing.List = list(), kakadu_optimisation: str = 'kdu_med', image_id='ID') -> (pathlib.Path, dict, dict):
+def _ingest_operation(source_path: pathlib.Path,
+                      dest_path: pathlib.Path,
+                      thumbnail_dir: pathlib.Path,  # TODO: shouldn't need to provide thumbnail_dir
+                      thumbnail_sizes: typing.List = list(),
+                      kakadu_optimisation: str = 'kdu_med',
+                      image_id='ID') -> dict:
     ingested_path, image_info = _ingest_image(
         source_path, dest_path, kakadu_optimisation)
     derivative_info = _make_derivatives(
-        ingested_image, thumbnail_sizes, thumbnail_dir)
-    return ingested_path, image_info, derivative_info
+        ingested_path, thumbnail_sizes, thumbnail_dir)
+    return {
+        'jp2': ingested_path,
+        'height': image_info.get('height'),
+        'width': image_info.get('width'),
+        'thumbs': derivative_info
+    }
 
 
-def process(source_path: pathlib.Path, dest_path: pathlib.Path, thumbnail_dir: pathlib.Path, thumbnail_sizes: typing.List = list(), kakadu_optimisation: str = 'kdu_med', image_id='ID', operation: str = 'ingest'):
+def process(**kwargs) -> dict:
 
     OPERATIONS = {
         'ingest': _ingest_operation,
         'derivatives-only': _derivatives_operation
     }
-
-    op_func = OPERATIONS.get(operation, _error)
-    result = op_func(source_path, dest_path, thumbnail_dir,
-                     thumbnail_sizes, kakadu_optimisation, image_id)
-
+    op_func = OPERATIONS.get(kwargs.get('operation', 'error'), _error)
+    result = op_func(**kwargs)
     return result
