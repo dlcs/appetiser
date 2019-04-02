@@ -11,7 +11,8 @@ def _b64_encode_json(json_data: typing.Any) -> bytes:
     """ Dumps a json data structure to a string and encodes it using
         Base64.
         """
-    return base64.b64encode(json.dumps(json_data).encode('utf-8'))
+    logger.debug('Base64 encoding: %s', json_data)
+    return base64.b64encode(json.dumps(json_data).encode('utf-8')).decode('utf-8')
 
 
 def _remap_dict_values(input_dict: dict, mappings: (tuple)) -> dict:
@@ -45,10 +46,12 @@ def _get_scale_factors(width: int, height: int, tile_size: int = 256) -> [int]:
         v. https://iiif.io/api/image/2.0/#image-information
         """
     dimension = max(width, height)
+    logger.debug('Calculating scale factors tile_size %s within %s', tile_size, dimension)
     factors = [1]
     while dimension > tile_size:
         dimension //= 2
         factors.append(factors[-1] * 2)
+    logger.debug('Scale factors %s for tile_size %s within %s', factors, tile_size, dimension)
     return factors
 
 
@@ -94,7 +97,7 @@ def extract_process_kwargs(convert_request_json: dict) -> dict:
         ('source',       'source_path',         pathlib.Path),
         ('destination',  'dest_path',           pathlib.Path),
         ('thumbDir',     'thumbnail_dir',       pathlib.Path),
-        ('thumbSizes',   'thumbnail_sizes', lambda x: list(map(int, x))),
+        ('thumbSizes',   'thumbnail_sizes',     lambda x: list(map(int, x))),
         ('optimisation', 'kakadu_optimisation', None),
         ('imageId',      'image_id',            None),
         ('operation',    'operation',           None)
@@ -108,10 +111,10 @@ def extract_response_items(convert_request_json: dict) -> dict:
         in the response.
         """
     _mappings = (
-        ('jobId',   'jobId',   None),
-        ('origin',  'origin',  None),
+        ('jobId',        'jobId',        None),
+        ('origin',       'origin',       None),
         ('optimisation', 'optimisation', None),
-        ('imageId', 'imageId', None),
+        ('imageId',      'imageId',      None),
     )
     logger.debug('Extracting request items for inclusion the response.')
     return _remap_dict_values(convert_request_json, _mappings)
@@ -127,6 +130,7 @@ def add_iiif_info_json(response: dict) -> dict:
         response.get('width')
     ]
     if all(iiif_image_info_json_args):
+        logger.debug('%s: all args present to generate IIIF info json', iiif_image_info_json_args[0])
         response['infoJson'] = _b64_encode_json(
             _iiif_image_info_json(*iiif_image_info_json_args)
         )

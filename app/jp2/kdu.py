@@ -1,16 +1,11 @@
 import logging
+import os
 import pathlib
 import subprocess
 import tempfile
 
 from PIL import (
     Image,
-)
-
-from .settings import (
-    KDU_LIB,
-    KDU_COMPRESS,
-    KDU_EXPAND,
 )
 
 logger = logging.getLogger(__name__)
@@ -26,11 +21,13 @@ def _run_kdu_command(kdu_command: str, env: dict):
                                 capture_output=True
                                 )
     except subprocess.CalledProcessError as e:
-        raise
+        raise e
 
 
 def kdu_compress(source_path: pathlib.Path, dest_path: pathlib.Path, optimisation: str, image_mode: str) -> pathlib.Path:
 
+    KDU_COMPRESS = os.environ.get('KDU_COMPRESS')
+    KDU_LIB = os.environ.get('KDU_LIB')
     image_modes = {
         'L': '-no_palette',
         '1': '-no_palette',
@@ -44,8 +41,8 @@ def kdu_compress(source_path: pathlib.Path, dest_path: pathlib.Path, optimisatio
         ' "Cprecincts={{256,256}},{{256,256}},{{256,256}},{{128,128}},{{128,128}},{{64,64}},'
         '{{64,64}},{{32,32}},{{16,16}}"',
         'kdu_med':  '{kdu_compress_path} -i {input_path} -o {output_path} Clevels=7 "Cblk={{64,64}}"'
-        '"Cuse_sop=yes" {image_mode} "ORGgen_plt=yes" "ORGtparts=R" "Corder=RPCL" -rate 2'
-        '"Cprecincts={{256,256}},{{256,256}},{{256,256}},{{128,128}},{{128,128}},{{64,64}},'
+        ' "Cuse_sop=yes" {image_mode} "ORGgen_plt=yes" "ORGtparts=R" "Corder=RPCL" -rate 2'
+        ' "Cprecincts={{256,256}},{{256,256}},{{256,256}},{{128,128}},{{128,128}},{{64,64}},'
         '{{64,64}},{{32,32}},{{16,16}}"',
         'kdu_med_layers':  '{kdu_compress_path} -i {input_path} -o {output_path} Clevels=7 "Cblk={{64,64}}"'
         ' "Cuse_sop=yes" {image_mode} "ORGgen_plt=yes" "ORGtparts=R" "Corder=RPCL" Clayers=6 -rate 2'
@@ -73,7 +70,7 @@ def kdu_compress(source_path: pathlib.Path, dest_path: pathlib.Path, optimisatio
         kdu_compress_path=KDU_COMPRESS,
         input_path=source_path,
         output_path=dest_path,
-        image_mode=image_modes.get('image_mode')
+        image_mode=image_modes.get(image_mode)
     )
     _run_kdu_command(kdu_compress_command, compress_env)
 
@@ -83,6 +80,10 @@ def kdu_expand_to_image(filepath: pathlib.Path) -> Image:
         Image.
         #TODO - is `-reduce` required in kdu_expand call?
         """
+
+    KDU_EXPAND = os.environ.get('KDU_EXPAND')
+    KDU_LIB = os.environ.get('KDU_LIB')
+
     kdu_expand_template = '{kdu_expand_path} -i {input_path} -o {output_path} -quiet -num_threads 4'
 
     expand_env = {

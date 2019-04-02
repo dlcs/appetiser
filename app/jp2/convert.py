@@ -1,14 +1,11 @@
 import logging
 import shutil
 import typing
+import os
 import pathlib
 
 from PIL import (
     Image,
-)
-
-from .settings import (
-    OUTPUT_DIR,
 )
 
 from .image import (
@@ -41,6 +38,7 @@ def _format_paths(source: str, dest: str = '') -> typing.Tuple[pathlib.Path, pat
     if dest:
         dest_path = pathlib.Path(dest)
     else:
+        OUTPUT_DIR = os.environ.get('OUTPUT_DIR')
         dest_path = pathlib.Path(OUTPUT_DIR).joinpath(
             source_path.stem).with_suffix('.jp2')
     return source_path, dest_path
@@ -99,7 +97,7 @@ def _derivatives_operation(source_path: pathlib.Path,
         derivative_info = _make_derivatives(
             source_path, thumbnail_sizes, thumbnail_dir)
         return {
-            'jp2': source_path,
+            'jp2': str(source_path),
             'height': image_info.get('height'),
             'width': image_info.get('width'),
             'thumbs': derivative_info
@@ -117,7 +115,7 @@ def _ingest_operation(source_path: pathlib.Path,
     derivative_info = _make_derivatives(
         ingested_path, thumbnail_sizes, thumbnail_dir)
     return {
-        'jp2': ingested_path,
+        'jp2': str(ingested_path),
         'height': image_info.get('height'),
         'width': image_info.get('width'),
         'thumbs': derivative_info
@@ -130,6 +128,6 @@ def process(**kwargs) -> dict:
         'ingest': _ingest_operation,
         'derivatives-only': _derivatives_operation
     }
-    op_func = OPERATIONS.get(kwargs.get('operation', 'error'), _error)
+    op_func = OPERATIONS.get(kwargs.pop('operation', 'error'), _error)
     result = op_func(**kwargs)
     return result

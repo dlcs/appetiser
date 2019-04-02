@@ -1,7 +1,7 @@
 import flask
 import pytest
 
-from app.appetiser import appetiser
+from appetiser import appetiser
 
 
 @pytest.fixture

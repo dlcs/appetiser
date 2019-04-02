@@ -12,7 +12,7 @@ from app.json_utils import (
 
 
 def test__b64_encode_json():
-    assert b'e30=' == _b64_encode_json({})
+    assert 'e30=' == _b64_encode_json({})
 
 
 def test__remap_dict_values():
@@ -177,14 +177,14 @@ def test_add_iiif_info_json():
         'imageId': 'an_identifier',
         'height': 300,
         'width': 400,
-        'infoJson': b'eyJAY29udGV4dCI6ICJodHRwOi8vaWlpZi5pby9hcGkvaW1hZ2UvMi9jb250ZXh0'
-        b'Lmpzb24iLCAiQGlkIjogImFuX2lkZW50aWZpZXIiLCAicHJvdG9jb2wiOiAiaHR0'
-        b'cDovL2lpaWYuaW8vYXBpL2ltYWdlIiwgIndpZHRoIjogNDAwLCAiaGVpZ2h0Ijog'
-        b'MzAwLCAidGlsZXMiOiBbeyJ3aWR0aCI6IDI1NiwgInNjYWxlRmFjdG9ycyI6IFsx'
-        b'LCAyXX1dLCAicHJvZmlsZSI6IFsiaHR0cDovL2lpaWYuaW8vYXBpL2ltYWdlLzIv'
-        b'bGV2ZWwxLmpzb24iLCB7ImZvcm1hdHMiOiBbImpwZyJdLCAicXVhbGl0aWVzIjog'
-        b'WyJuYXRpdmUiLCAiY29sb3IiLCAiZ3JheSJdLCAic3VwcG9ydHMiOiBbInJlZ2lv'
-        b'bkJ5UGN0IiwgInNpemVCeUZvcmNlZFdoIiwgInNpemVCeVdoIiwgInNpemVBYm92'
-        b'ZUZ1bGwiLCAicm90YXRpb25CeTkwcyIsICJtaXJyb3JpbmciLCAiZ3JheSJdfV19',
+        'infoJson': 'eyJAY29udGV4dCI6ICJodHRwOi8vaWlpZi5pby9hcGkvaW1hZ2UvMi9jb250ZXh0'
+        'Lmpzb24iLCAiQGlkIjogImFuX2lkZW50aWZpZXIiLCAicHJvdG9jb2wiOiAiaHR0'
+        'cDovL2lpaWYuaW8vYXBpL2ltYWdlIiwgIndpZHRoIjogNDAwLCAiaGVpZ2h0Ijog'
+        'MzAwLCAidGlsZXMiOiBbeyJ3aWR0aCI6IDI1NiwgInNjYWxlRmFjdG9ycyI6IFsx'
+        'LCAyXX1dLCAicHJvZmlsZSI6IFsiaHR0cDovL2lpaWYuaW8vYXBpL2ltYWdlLzIv'
+        'bGV2ZWwxLmpzb24iLCB7ImZvcm1hdHMiOiBbImpwZyJdLCAicXVhbGl0aWVzIjog'
+        'WyJuYXRpdmUiLCAiY29sb3IiLCAiZ3JheSJdLCAic3VwcG9ydHMiOiBbInJlZ2lv'
+        'bkJ5UGN0IiwgInNpemVCeUZvcmNlZFdoIiwgInNpemVCeVdoIiwgInNpemVBYm92'
+        'ZUZ1bGwiLCAicm90YXRpb25CeTkwcyIsICJtaXJyb3JpbmciLCAiZ3JheSJdfV19',
     }
     assert add_iiif_info_json(response) == expected_response

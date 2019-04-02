@@ -10,6 +10,7 @@ from app.json_utils import (
     add_iiif_info_json
 )
 
+logger = logging.getLogger(__name__)
 appetiser = flask.Flask(__name__)
 
 
