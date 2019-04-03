@@ -8,6 +8,12 @@ from PIL import (
     Image,
 )
 
+from .settings import (
+        KDU_COMPRESS, 
+        KDU_EXPAND, 
+        KDU_LIB
+        )
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,9 +31,9 @@ def _run_kdu_command(kdu_command: str, env: dict):
 
 
 def kdu_compress(source_path: pathlib.Path, dest_path: pathlib.Path, optimisation: str, image_mode: str) -> pathlib.Path:
+    """ Uses the kdu_compress command to convert a source image (in BMP, RAW, PBM, PGM, PPM or TIFF formats) to a JPEG2000.
+        """
 
-    KDU_COMPRESS = os.environ.get('KDU_COMPRESS')
-    KDU_LIB = os.environ.get('KDU_LIB')
     image_modes = {
         'L': '-no_palette',
         '1': '-no_palette',
@@ -80,9 +86,6 @@ def kdu_expand_to_image(filepath: pathlib.Path) -> Image:
         Image.
         #TODO - is `-reduce` required in kdu_expand call?
         """
-
-    KDU_EXPAND = os.environ.get('KDU_EXPAND')
-    KDU_LIB = os.environ.get('KDU_LIB')
 
     kdu_expand_template = '{kdu_expand_path} -i {input_path} -o {output_path} -quiet -num_threads 4'
 
