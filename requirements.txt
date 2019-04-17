@@ -1,0 +1,6 @@
+awscli
+Flask
+Pillow
+pytest
+pytest-mock
+uwsgi

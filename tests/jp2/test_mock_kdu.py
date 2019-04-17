@@ -2,17 +2,14 @@ import pathlib
 import pytest
 import subprocess
 
-from app.jp2.kdu import (
-        _run_kdu_command,
-        kdu_compress, 
-        kdu_expand_to_image
-        )
+import app.jp2.kdu 
+import app.jp2.settings
 
 def test__run_kdu_command(mocker):
     mocker.patch('subprocess.run')
     command = '/path/to/kdu/command --and args'
     env = {'ENVIRONMENTAL': 'VARIABLES'}
-    _run_kdu_command(command, env)
+    app.jp2.kdu._run_kdu_command(command, env)
     subprocess.run.assert_called_once_with(
             command, 
             env=env,
@@ -25,15 +22,13 @@ def test__run_kdu_command_exception(mocker):
     command = 'false'
     env = {'ENVIRONMENTAL': 'VARIABLES'}
     with pytest.raises(subprocess.CalledProcessError):
-        _run_kdu_command(command, env)
+        app.jp2.kdu._run_kdu_command(command, env)
 
 
 def test_kdu_compress_kdu_low_rgb(mocker):
     mocker.patch('subprocess.run')
-    mocker.patch.dict('os.environ', {
-        'KDU_COMPRESS': '/path/to/kdu_compress', 
-        'KDU_LIB': '/path/to/kdu_lib', 
-        })
+    mocker.patch('app.jp2.settings.KDU_COMPRESS', '/path/to/kdu_compress')
+    mocker.patch('app.jp2.settings.KDU_LIB', '/path/to/kdu_lib')
     expected_command = '/path/to/kdu_compress -i /path/to/image.tiff -o /path/to/image.jp2'\
     ' Clevels=7 "Cblk={64,64}" "Cuse_sop=yes" -jp2_space sRGB "ORGgen_plt=yes"'\
     ' "ORGtparts=R" "Corder=RPCL" -rate 0.5 "Cprecincts={256,256},{256,256},'\
@@ -42,7 +37,7 @@ def test_kdu_compress_kdu_low_rgb(mocker):
             'LD_LIBRARY_PATH': '/path/to/kdu_lib',
             'PATH': '/path/to/kdu_compress'
             }
-    kdu_compress(
+    app.jp2.kdu.kdu_compress(
             pathlib.Path('/path/to/image.tiff'),
             pathlib.Path('/path/to/image.jp2'), 
             'kdu_low', 

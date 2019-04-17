@@ -26,7 +26,7 @@ def test_error_message():
 
 def test_format_paths_default():
     source = '/path/to/source.png'
-    dest = '/opt/tizer/out/source.jp2'
+    dest = '/opt/appetiser/out/source.jp2'
     source_path, dest_path = _format_paths(source)
     assert isinstance(source_path, pathlib.Path)
     assert isinstance(dest_path, pathlib.Path)

@@ -66,6 +66,7 @@ def _convert_test_runner(
     }
     orig_image = Image.open(img_src)
     response = appetiser_client.post('/convert', json=post_json)
+    print(response.json)
     assert response.json['imageId'] == img_name
     assert response.json['jobId'] == img_name + '_job'
     assert response.json['origin'] == img_name + '_origin'
