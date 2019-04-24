@@ -29,14 +29,14 @@ def _remap_dict_values(input_dict: dict, mappings: (tuple)) -> dict:
     for from_key, to_key, func in mappings:
         value = input_dict.get(from_key)
         if value:
-            logger.debug('%s: has value "%s"', from_key, value)
+            logger.debug('%s has value "%s"', from_key, value)
             if func:
-                logger.debug('%s: being applied to %s', func, value)
+                logger.debug('%s being applied to %s', func, value)
                 value = func(value)
-            logger.debug('%s: assigned value %s', to_key, value)
+            logger.debug('%s assigned value %s', to_key, value)
             result_dict[to_key] = value
         else:
-            logger.debug('%s: not present in source dict.', from_key)
+            logger.debug('%s not present in source dict.', from_key)
     return result_dict
 
 
@@ -46,12 +46,14 @@ def _get_scale_factors(width: int, height: int, tile_size: int = 256) -> [int]:
         v. https://iiif.io/api/image/2.0/#image-information
         """
     dimension = max(width, height)
-    logger.debug('Calculating scale factors tile_size %s within %s', tile_size, dimension)
+    logger.debug('Calculating scale factors tile_size %s within %s',
+                 tile_size, dimension)
     factors = [1]
     while dimension > tile_size:
         dimension //= 2
         factors.append(factors[-1] * 2)
-    logger.debug('Scale factors %s for tile_size %s within %s', factors, tile_size, dimension)
+    logger.debug('Scale factors %s for tile_size %s within %s',
+                 factors, tile_size, dimension)
     return factors
 
 
@@ -60,6 +62,8 @@ def _iiif_image_info_json(image_id: str, height: int, width: int, tile_size: int
         v. https://iiif.io/api/image/2.0/#image-information
         """
     scale_factors = _get_scale_factors(width, height, tile_size)
+    logger.debug('Generating IIIF Image Information JSON for %s (%s, %s) %s',
+                 image_id, width, height, scale_factors)
     return {
         '@context': 'http://iiif.io/api/image/2/context.json',
         '@id': image_id,
@@ -97,7 +101,7 @@ def extract_process_kwargs(convert_request_json: dict) -> dict:
         ('source',       'source_path',         pathlib.Path),
         ('destination',  'dest_path',           pathlib.Path),
         ('thumbDir',     'thumbnail_dir',       pathlib.Path),
-        ('thumbSizes',   'thumbnail_sizes',     lambda x: list(map(int, x))),
+        ('thumbSizes',   'thumbnail_sizes', lambda x: list(map(int, x))),
         ('optimisation', 'kakadu_optimisation', None),
         ('imageId',      'image_id',            None),
         ('operation',    'operation',           None)
@@ -130,7 +134,8 @@ def add_iiif_info_json(response: dict) -> dict:
         response.get('width')
     ]
     if all(iiif_image_info_json_args):
-        logger.debug('%s: all args present to generate IIIF info json', iiif_image_info_json_args[0])
+        logger.debug('%s: all args present to generate IIIF info json',
+                     iiif_image_info_json_args[0])
         response['infoJson'] = _b64_encode_json(
             _iiif_image_info_json(*iiif_image_info_json_args)
         )

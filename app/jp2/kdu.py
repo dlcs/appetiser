@@ -1,5 +1,4 @@
 import logging
-import os
 import pathlib
 import subprocess
 import tempfile
@@ -9,10 +8,10 @@ from PIL import (
 )
 
 from .settings import (
-        KDU_COMPRESS, 
-        KDU_EXPAND, 
-        KDU_LIB
-        )
+    KDU_COMPRESS,
+    KDU_EXPAND,
+    KDU_LIB
+)
 
 logger = logging.getLogger(__name__)
 
@@ -20,18 +19,19 @@ logger = logging.getLogger(__name__)
 def _run_kdu_command(kdu_command: str, env: dict):
     try:
         logger.debug('Running command: %s', kdu_command)
-        result = subprocess.run(kdu_command,
-                                env=env,
-                                shell=True,
-                                check=True,
-                                capture_output=True
-                                )
+        subprocess.run(kdu_command,
+                       env=env,
+                       shell=True,
+                       check=True,
+                       capture_output=True
+                       )
     except subprocess.CalledProcessError as e:
         raise e
 
 
 def kdu_compress(source_path: pathlib.Path, dest_path: pathlib.Path, optimisation: str, image_mode: str) -> pathlib.Path:
-    """ Uses the kdu_compress command to convert a source image (in BMP, RAW, PBM, PGM, PPM or TIFF formats) to a JPEG2000.
+    """ Uses the kdu_compress command to convert a source image
+        (in BMP, RAW, PBM, PGM, PPM or TIFF formats) to a JPEG2000.
         """
 
     image_modes = {
