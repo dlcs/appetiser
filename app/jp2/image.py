@@ -31,7 +31,7 @@ def _extract_img_info(img: Image) -> dict:
     }
 
 
-def get_img_info(filepath: pathlib.Path) -> (pathlib.Path, str):
+def get_img_info(filepath: pathlib.Path) -> (pathlib.Path, dict):
     """ For file formats that don't require conversion or other preparation
         before being converted to JPEG2000, this will open the file
         and get the image height, width and mode for use in the conversion
@@ -43,7 +43,7 @@ def get_img_info(filepath: pathlib.Path) -> (pathlib.Path, str):
     return filepath, img_info
 
 
-def _uncompress_tiff(filepath: pathlib.Path) -> (pathlib.Path, str):
+def _uncompress_tiff(filepath: pathlib.Path) -> (pathlib.Path, dict):
     """ Checks whether a tiff file has been saved with compression,
         and if so, will save an uncompressed version under a new name.
         While the image is open gets the image mode for use in the
@@ -121,7 +121,7 @@ def _convert_img_colour_profile(img: Image, img_filename: str = '') -> Image:
     return img
 
 
-def _convert_img_to_tiff(filepath: pathlib.Path) -> (pathlib.Path, str):
+def _convert_img_to_tiff(filepath: pathlib.Path) -> (pathlib.Path, dict):
     """ Attempts to open a file with Pillow, correct image orienation,
         set the colour profile, and save the image as a tiff.
         While the image is open gets the image mode for use in the
@@ -144,7 +144,7 @@ def _rasterise_pdf(filepath: pathlib.Path) -> pathlib.Path:
     pass
 
 
-def prepare_source_file(filepath: pathlib.Path) -> (pathlib.Path, str):
+def prepare_source_file(filepath: pathlib.Path) -> (pathlib.Path, dict):
     """ Prepares a source file for processing by kakadu by establishing the
         format and converting as required.
         From kdu_compress -usage:

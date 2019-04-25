@@ -20,6 +20,10 @@ from .kdu import (
     kdu_expand_to_image
 )
 
+from .settings import (
+    OUTPUT_DIR
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -38,8 +42,7 @@ def _format_paths(source: str, dest: str = '') -> typing.Tuple[pathlib.Path, pat
     if dest:
         dest_path = pathlib.Path(dest)
     else:
-        OUTPUT_DIR = os.environ.get('OUTPUT_DIR')
-        dest_path = pathlib.Path(OUTPUT_DIR).joinpath(
+        dest_path = OUTPUT_DIR.joinpath(
             source_path.stem).with_suffix('.jp2')
     return source_path, dest_path
 
@@ -54,6 +57,9 @@ def _format_derivative_info(img: Image, dest_path: pathlib.Path) -> dict:
 
 
 def _make_derivatives(source_path: pathlib.Path, derivative_sizes: [int], output_dir: pathlib.Path) -> list:
+    """ Manages the creation of derivatives (only thumbnails at present) for a given JPEG200 file,
+        returning information about the derivatives and where they're located.
+        """
     img = kdu_expand_to_image(source_path)
     derivative_info = []
     for size in sorted(derivative_sizes, reverse=True):
@@ -65,8 +71,9 @@ def _make_derivatives(source_path: pathlib.Path, derivative_sizes: [int], output
     return derivative_info
 
 
-def _ingest_image(source_path: pathlib.Path, dest_path: pathlib.Path, optimisation: str):
-    """
+def _ingest_image(source_path: pathlib.Path, dest_path: pathlib.Path, optimisation: str) -> (pathlib.Path, dict):
+    """ Manages the initial conversion of the provided source image file to a
+        tile optimised JPEG2000 file using the provide kdu optimisation type.
         """
     logger.debug('%s: Preparing file for ingest.', source_path)
     prepared_source_path, image_info = prepare_source_file(source_path)

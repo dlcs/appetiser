@@ -1,15 +1,14 @@
-import flask
-import logging
-import logging.config
-
-from app.jp2.convert import (
-    process
-)
 from app.json_utils import (
     extract_process_kwargs,
     extract_response_items,
     add_iiif_info_json
 )
+from app.jp2.convert import (
+    process
+)
+import flask
+import logging
+import logging.config
 
 logging.config.dictConfig({
     'version': 1,
@@ -29,6 +28,9 @@ logging.config.dictConfig({
 })
 
 appetiser = flask.Flask(__name__)
+
+# Import after setup of logging to allow inclusion of
+# initialisation logging in wsgi stdout.
 
 
 @appetiser.errorhandler(500)
