@@ -10,6 +10,10 @@ from PIL import (
 
 logger = logging.getLogger(__name__)
 
+# Allows images of any size to be processed without raising a 
+# warning or an error. 
+Image.MAX_IMAGE_PIXELS = None
+
 
 def is_tile_optimised_jp2(filepath: pathlib.Path) -> bool:
     """ Determines if a file is a JPEG2000 and whether it is optimised.

@@ -15,6 +15,9 @@ from .settings import (
 
 logger = logging.getLogger(__name__)
 
+# Allows images of any size to be processed without raising a 
+# warning or an error. 
+Image.MAX_IMAGE_PIXELS = None
 
 def _run_kdu_command(kdu_command: str, env: dict):
     try:
