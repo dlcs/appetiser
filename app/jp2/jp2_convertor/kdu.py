@@ -1,11 +1,14 @@
 import logging
 import pathlib
-import subprocess
 import tempfile
 
 from PIL import (
     Image,
 )
+
+from .utils import (
+    run_command, 
+    )
 
 from .settings import (
     KDU_COMPRESS,
@@ -18,18 +21,6 @@ logger = logging.getLogger(__name__)
 # Allows images of any size to be processed without raising a 
 # warning or an error. 
 Image.MAX_IMAGE_PIXELS = None
-
-def _run_kdu_command(kdu_command: str, env: dict):
-    try:
-        logger.debug('Running command: %s', kdu_command)
-        subprocess.run(kdu_command,
-                       env=env,
-                       shell=True,
-                       check=True,
-                       capture_output=True
-                       )
-    except subprocess.CalledProcessError as e:
-        raise e
 
 
 def kdu_compress(source_path: pathlib.Path, dest_path: pathlib.Path, optimisation: str, image_mode: str) -> pathlib.Path:
@@ -81,7 +72,7 @@ def kdu_compress(source_path: pathlib.Path, dest_path: pathlib.Path, optimisatio
         output_path=dest_path,
         image_mode=image_modes.get(image_mode)
     )
-    _run_kdu_command(kdu_compress_command, compress_env)
+    run_command(kdu_compress_command, compress_env)
 
 
 def kdu_expand_to_image(filepath: pathlib.Path) -> Image:
@@ -106,6 +97,6 @@ def kdu_expand_to_image(filepath: pathlib.Path) -> Image:
             input_path=filepath,
             output_path=output_file
         )
-        _run_kdu_command(kdu_expand_command, expand_env)
+        run_command(kdu_expand_command, expand_env)
         logger.debug('%s: Opening file with PIL', output_file)
         return Image.open(output_file)

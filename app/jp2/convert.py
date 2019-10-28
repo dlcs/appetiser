@@ -15,9 +15,9 @@ from .image import (
     resize_and_save_img
 )
 
-from .kdu import (
-    kdu_compress,
-    kdu_expand_to_image
+from .processors import (
+    compress,
+    expand_to_image
 )
 
 from .settings import (
@@ -60,7 +60,7 @@ def _make_derivatives(source_path: pathlib.Path, derivative_sizes: [int], output
     """ Manages the creation of derivatives (only thumbnails at present) for a given JPEG200 file,
         returning information about the derivatives and where they're located.
         """
-    img = kdu_expand_to_image(source_path)
+    img = expand_to_image(source_path)
     derivative_info = []
     for size in sorted(derivative_sizes, reverse=True):
         dest_path = output_dir / '{}_{}.jpg'.format(source_path.stem, size)
@@ -73,7 +73,7 @@ def _make_derivatives(source_path: pathlib.Path, derivative_sizes: [int], output
 
 def _ingest_image(source_path: pathlib.Path, dest_path: pathlib.Path, optimisation: str) -> (pathlib.Path, dict):
     """ Manages the initial conversion of the provided source image file to a
-        tile optimised JPEG2000 file using the provide kdu optimisation type.
+        tile optimised JPEG2000 file using the provided optimisation type.
         """
     logger.debug('%s: Preparing file for ingest.', source_path)
     prepared_source_path, image_info = prepare_source_file(source_path)
@@ -86,7 +86,7 @@ def _ingest_image(source_path: pathlib.Path, dest_path: pathlib.Path, optimisati
         image_mode = image_info.get('mode')
         logger.debug('%s: Being used for conversion to JPEG2000, with colour mode: %s',
                      prepared_source_path, image_mode)
-        kdu_compress(prepared_source_path, dest_path, optimisation, image_mode)
+        compress(prepared_source_path, dest_path, optimisation, image_mode)
         return dest_path, image_info
 
 
@@ -115,10 +115,10 @@ def _ingest_operation(source_path: pathlib.Path,
                       dest_path: pathlib.Path,
                       thumbnail_dir: pathlib.Path,  # TODO: shouldn't need to provide thumbnail_dir
                       thumbnail_sizes: typing.List = list(),
-                      kakadu_optimisation: str = 'kdu_med',
+                      optimisation: str = 'kdu_med',
                       image_id='ID') -> dict:
     ingested_path, image_info = _ingest_image(
-        source_path, dest_path, kakadu_optimisation)
+        source_path, dest_path, optimisation)
     derivative_info = _make_derivatives(
         ingested_path, thumbnail_sizes, thumbnail_dir)
     return {

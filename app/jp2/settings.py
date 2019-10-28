@@ -20,8 +20,4 @@ def _get_path_from_env_var(env_var_name: str) -> pathlib.Path:
     logger.info('%s has valid path %s', env_var_name, env_var)
     return path
 
-
-KDU_COMPRESS = _get_path_from_env_var('KDU_COMPRESS')
-KDU_EXPAND = _get_path_from_env_var('KDU_EXPAND')
-KDU_LIB = _get_path_from_env_var('KDU_LIB')
 OUTPUT_DIR = _get_path_from_env_var('OUTPUT_DIR')

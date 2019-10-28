@@ -2,7 +2,7 @@ import pathlib
 import pytest
 import subprocess
 
-import app.jp2.kdu
+import app.jp2.processors.kdu
 import app.jp2.settings
 
 

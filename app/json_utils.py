@@ -102,7 +102,7 @@ def extract_process_kwargs(convert_request_json: dict) -> dict:
         ('destination',  'dest_path',           pathlib.Path),
         ('thumbDir',     'thumbnail_dir',       pathlib.Path),
         ('thumbSizes',   'thumbnail_sizes', lambda x: list(map(int, x))),
-        ('optimisation', 'kakadu_optimisation', None),
+        ('optimisation', 'optimisation', None),
         ('imageId',      'image_id',            None),
         ('operation',    'operation',           None)
     )
