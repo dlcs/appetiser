@@ -11,7 +11,7 @@ node('linux') {
         }
 
         stage('Publish image') {
-            withCredentials([usernamePassword(credentialsId: "digiratidlcs", usernameVariable: 'registryUsername', passwordVariable: 'registryPassword')]) {
+            withCredentials([usernamePassword(credentialsId: "dockerhub-digiratidlcs", usernameVariable: 'registryUsername', passwordVariable: 'registryPassword')]) {
                 dockerPush(registryUsername, registryPassword, rev.GIT_COMMIT)
             }
         }
