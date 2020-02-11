@@ -15,7 +15,7 @@ from .image import (
     resize_and_save_img
 )
 
-from .processors import (
+from .jp2 import (
     compress,
     expand_to_image
 )

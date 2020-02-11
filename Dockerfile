@@ -1,6 +1,8 @@
 FROM python:3.8.1-slim-buster
 
-ENV KAKADU_APPS_LOCATION s3://dlcs-dlcservices-bootstrap-objects/kdu77-apps.tar.gz
+ENV KAKADU_APPS_LOCATION="" 
+ENV OPENJPEG_APPS_LOCATION=""
+
 ENV APPETISER_DIR /opt/appetiser
 ENV TMPDIR $APPETISER_DIR/tmp
 ENV OUTPUT_DIR $APPETISER_DIR/out/
@@ -23,8 +25,7 @@ RUN apt-get update -y && apt-get install -y cmake \
                                             libfribidi-dev
 
 COPY . $APPETISER_DIR
-RUN chmod +x $APPETISER_DIR/run_tests.sh
-RUN chmod +x $APPETISER_DIR/run_appetiser.sh
+RUN chmod +x $APPETISER_DIR/scripts/*
 
 RUN pip3 install --no-cache-dir -r $APPETISER_DIR/requirements.txt
 
@@ -32,4 +33,4 @@ RUN mkdir $TMPDIR $OUTPUT_DIR
 WORKDIR $APPETISER_DIR
 
 EXPOSE 80
-CMD $APPETISER_DIR/run_appetiser.sh
+CMD $APPETISER_DIR/scripts/run_appetiser.sh

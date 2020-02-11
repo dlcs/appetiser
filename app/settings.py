@@ -25,7 +25,7 @@ def _get_related_env_vars(*env_var_names: str):
     for env_var_name in env_var_names: 
         try: 
             path = _get_path_from_env_var(env_var_name)
-        except Exception e: 
+        except Exception as e: 
             logger.error(e)
             path = None
         env_vars.append(path)
@@ -35,8 +35,7 @@ def _get_related_env_vars(*env_var_names: str):
     return env_vars
 
 OUTPUT_DIR = _get_path_from_env_var('OUTPUT_DIR')
-
 KDU_LIB, KDU_EXPAND, KDU_COMPRESS = _get_related_env_vars('KDU_LIB', 'KDU_COMPRESS', 'KDU_EXPAND')
-KDU_AVAILABLE = all(KDU_LIB, KDU_EXPAND, KDU_COMPRESS)
+KDU_AVAILABLE = all((KDU_LIB, KDU_EXPAND, KDU_COMPRESS))
 OPJ_COMPRESS, OPJ_DECOMPRESS = _get_related_env_vars('OPJ_COMPRESS', 'OPJ_DECOMPRESS')
-OPJ_AVAILABLE = all(OPJ_COMPRESS, OPJ_DECOMPRESS)
+OPJ_AVAILABLE = all((OPJ_COMPRESS, OPJ_DECOMPRESS))

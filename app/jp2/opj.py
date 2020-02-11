@@ -7,16 +7,16 @@ from PIL import (
     Image, 
 )
 
-from .settings import (
-    OPENJPEG_COMPRESS, 
-    OPENJPEG_EXPAND, 
+from ..settings import (
+    OPJ_COMPRESS, 
+    OPJ_DECOMPRESS, 
 )
 
 logger = logging.getLogger(__name__)
 
 
-def openjpeg_compress():
+def opj_compress():
     pass
 
-def openjpeg_expand_to_image():
+def opj_decompress():
     pass

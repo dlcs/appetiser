@@ -10,7 +10,7 @@ from .utils import (
     run_command, 
     )
 
-from .settings import (
+from ..settings import (
     KDU_COMPRESS,
     KDU_EXPAND,
     KDU_LIB

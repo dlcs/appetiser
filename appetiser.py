@@ -3,7 +3,7 @@ from app.json_utils import (
     extract_response_items,
     add_iiif_info_json
 )
-from app.jp2.convert import (
+from app.convert import (
     process
 )
 import flask
