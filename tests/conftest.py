@@ -8,14 +8,14 @@ from appetiser import appetiser
 
 @pytest.fixture
 def appetiser_client() -> flask.Flask:
-    appetiser.config['TESTING'] = True
+    appetiser.config["TESTING"] = True
     client = appetiser.test_client()
     yield client
 
 
 @pytest.fixture
 def fixtures_dir() -> pathlib.Path:
-    return pathlib.Path(__file__).parent / 'fixtures'
+    return pathlib.Path(__file__).parent / "fixtures"
 
 
 @pytest.fixture

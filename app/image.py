@@ -10,8 +10,8 @@ from PIL import (
 
 logger = logging.getLogger(__name__)
 
-# Allows images of any size to be processed without raising a 
-# warning or an error. 
+# Allows images of any size to be processed without raising a
+# warning or an error.
 Image.MAX_IMAGE_PIXELS = None
 
 
@@ -19,20 +19,21 @@ def is_tile_optimised_jp2(filepath: pathlib.Path) -> bool:
     """ Determines if a file is a JPEG2000 and whether it is optimised.
         TODO: check for optimisation rather than just based on extension.
         """
-    return filepath.suffix == '.jp2'
+    return filepath.suffix == ".jp2"
 
 
 def _extract_img_info(img: Image) -> dict:
     """ Extract a properties from a PIL Image and store in a dict
         for use as part of subsequent processing.
         """
-    logger.debug('%s: mode - %s, width - %s, height - %s',
-                 img.filename, img.mode, img.width, img.height)
-    return {
-        'mode': img.mode,
-        'height': img.height,
-        'width': img.width
-    }
+    logger.debug(
+        "%s: mode - %s, width - %s, height - %s",
+        img.filename,
+        img.mode,
+        img.width,
+        img.height,
+    )
+    return {"mode": img.mode, "height": img.height, "width": img.width}
 
 
 def get_img_info(filepath: pathlib.Path) -> (pathlib.Path, dict):
@@ -41,7 +42,7 @@ def get_img_info(filepath: pathlib.Path) -> (pathlib.Path, dict):
         and get the image height, width and mode for use in the conversion
         process.
         """
-    logger.debug('%s: file does not require preparation', filepath)
+    logger.debug("%s: file does not require preparation", filepath)
     with Image.open(filepath) as img:
         img_info = _extract_img_info(img)
     return filepath, img_info
@@ -55,18 +56,17 @@ def _uncompress_tiff(filepath: pathlib.Path) -> (pathlib.Path, dict):
         """
     with Image.open(filepath) as img:
         img_info = _extract_img_info(img)
-        compression = img.info.get('compression')
-        if compression != 'raw':
-            logger.debug(
-                '%s: uses compression method %s', filepath, compression)
-            tiff_filepath = filepath.parent / ('raw_' + filepath.name)
-            logger.debug('%s: saving as raw to %s', filepath, tiff_filepath)
+        compression = img.info.get("compression")
+        if compression != "raw":
+            logger.debug("%s: uses compression method %s", filepath, compression)
+            tiff_filepath = filepath.parent / ("raw_" + filepath.name)
+            logger.debug("%s: saving as raw to %s", filepath, tiff_filepath)
             img.save(tiff_filepath, compression=None)
             filepath = tiff_filepath
     return filepath, img_info
 
 
-def _correct_img_orientation(img: Image, img_filename: str = '') -> Image:
+def _correct_img_orientation(img: Image, img_filename: str = "") -> Image:
     """ If the image has EXIF data, and the orientation of the image in the EXIF
         data is anything
         """
@@ -83,44 +83,44 @@ def _correct_img_orientation(img: Image, img_filename: str = '') -> Image:
         [Image.ROTATE_90],
     ]
     orientation = 0
-    if hasattr(img, '_getexif'):
+    if hasattr(img, "_getexif"):
         exif = img._getexif()
         if exif:
-            logger.debug(
-                '%s: extracting orientation from EXIF data', img_filename)
+            logger.debug("%s: extracting orientation from EXIF data", img_filename)
             orientation = exif.get(EXIF_ORIENTATION_TAG, 0)
-            logger.debug('%s: EXIF orientation %s',
-                         img_filename, orientation)
+            logger.debug("%s: EXIF orientation %s", img_filename, orientation)
 
     for transpose_operation in EXIF_TRANSPOSE_OPERATIONS[orientation]:
-        logger.debug('%s: applying transpose operation %s',
-                     img_filename, transpose_operation)
+        logger.debug(
+            "%s: applying transpose operation %s", img_filename, transpose_operation
+        )
         img = img.transpose(transpose_operation)
 
     return img
 
 
-def _convert_img_colour_profile(img: Image, img_filename: str = '') -> Image:
+def _convert_img_colour_profile(img: Image, img_filename: str = "") -> Image:
     """ If the image has ICC profile information, apply a transformation to this
         image from that ICC colour profile to the sRGB colour profile.
         """
-    img_colour_profile_bytes = img.info.get('icc_profile')
+    img_colour_profile_bytes = img.info.get("icc_profile")
     if img_colour_profile_bytes:
-        logger.debug(
-            '%s: extracting embedded colour profile', img_filename)
+        logger.debug("%s: extracting embedded colour profile", img_filename)
         img_colour_profile = ImageCms.ImageCmsProfile(
-            io.BytesIO(img_colour_profile_bytes))
+            io.BytesIO(img_colour_profile_bytes)
+        )
         img_colour_profile_name = ImageCms.getProfileName(img_colour_profile)
-        logger.debug('%s: icc colour profile %s', img_filename,
-                     img_colour_profile_name)
-        sRGB_profile = ImageCms.createProfile('sRGB')
-        logger.debug('%s: converting colour profile from %s to %s',
-                     img_filename,
-                     img_colour_profile_name,
-                     sRGB_profile.profile_description
-                     )
+        logger.debug("%s: icc colour profile %s", img_filename, img_colour_profile_name)
+        sRGB_profile = ImageCms.createProfile("sRGB")
+        logger.debug(
+            "%s: converting colour profile from %s to %s",
+            img_filename,
+            img_colour_profile_name,
+            sRGB_profile.profile_description,
+        )
         img = ImageCms.profileToProfile(
-            img, img_colour_profile, sRGB_profile, outputMode='RGB')
+            img, img_colour_profile, sRGB_profile, outputMode="RGB"
+        )
 
     return img
 
@@ -136,10 +136,10 @@ def _convert_img_to_tiff(filepath: pathlib.Path) -> (pathlib.Path, dict):
         img_info = _extract_img_info(img)
         img = _correct_img_orientation(img, img_filename)
         img = _convert_img_colour_profile(img, img_filename)
-        tiff_filepath = filepath.parent.joinpath(
-            'raw_' + filepath.stem).with_suffix('.tiff')
-        logger.debug('%s: saving as raw to %s',
-                     filepath, tiff_filepath)
+        tiff_filepath = filepath.parent.joinpath("raw_" + filepath.stem).with_suffix(
+            ".tiff"
+        )
+        logger.debug("%s: saving as raw to %s", filepath, tiff_filepath)
         img.save(tiff_filepath, compression=None)
     return tiff_filepath, img_info
 
@@ -158,22 +158,24 @@ def prepare_source_file(filepath: pathlib.Path) -> (pathlib.Path, dict):
         point files), as determined by the file suffix.
         """
     img_file_funcs = {
-        '.bmp': get_img_info,
-        '.raw': get_img_info,
-        '.pbm': get_img_info,
-        '.pgm': get_img_info,
-        '.ppm': get_img_info,
-        '.jp2': get_img_info,  # TODO convert to tiff if JP2 not tile-ready.
-        '.pdf': _rasterise_pdf,
-        '.tif': _uncompress_tiff,
-        '.tiff': _uncompress_tiff,
+        ".bmp": get_img_info,
+        ".raw": get_img_info,
+        ".pbm": get_img_info,
+        ".pgm": get_img_info,
+        ".ppm": get_img_info,
+        ".jp2": get_img_info,  # TODO convert to tiff if JP2 not tile-ready.
+        ".pdf": _rasterise_pdf,
+        ".tif": _uncompress_tiff,
+        ".tiff": _uncompress_tiff,
     }
     f = img_file_funcs.get(filepath.suffix, _convert_img_to_tiff)
-    logger.debug('%s() to be applied to %s', f.__name__, filepath)
+    logger.debug("%s() to be applied to %s", f.__name__, filepath)
     return f(filepath)
 
 
-def _scale_dimensions_to_fit(width: int, height: int, req_width: int, req_height: int) -> (int, int):
+def _scale_dimensions_to_fit(
+    width: int, height: int, req_width: int, req_height: int
+) -> (int, int):
     """ For a given width and height, scale these such that they will fit within
         the required height and width by reducing them by an appropriate scale
         factor.
@@ -182,20 +184,31 @@ def _scale_dimensions_to_fit(width: int, height: int, req_width: int, req_height
         scaling issues).
         """
     if width <= req_width and height <= req_height:
-        logger.debug('(%s, %s): Dimensions do not need scaling.')
+        logger.debug("(%s, %s): Dimensions do not need scaling.")
         return width, height
     decimal.getcontext().prec = 17
     dec_width = decimal.Decimal(width)
     dec_height = decimal.Decimal(height)
     dec_req_width = decimal.Decimal(req_width)
     dec_req_height = decimal.Decimal(req_height)
-    scale = min(dec_req_width/dec_width, dec_req_height/dec_height)
-    logger.debug('(%s, %s): to fit within (%s, %s) requires a scale factor of %s',
-                 dec_width, dec_height, dec_req_width, dec_req_height, scale)
+    scale = min(dec_req_width / dec_width, dec_req_height / dec_height)
+    logger.debug(
+        "(%s, %s): to fit within (%s, %s) requires a scale factor of %s",
+        dec_width,
+        dec_height,
+        dec_req_width,
+        dec_req_height,
+        scale,
+    )
     scaled_int_width = int((dec_width * scale).to_integral_exact())
     scaled_int_height = int((dec_height * scale).to_integral_exact())
-    logger.debug('(%s, %s): scaled to (%s, %s)', dec_width,
-                 dec_height, scaled_int_width, scaled_int_height)
+    logger.debug(
+        "(%s, %s): scaled to (%s, %s)",
+        dec_width,
+        dec_height,
+        scaled_int_width,
+        scaled_int_height,
+    )
     return scaled_int_width, scaled_int_height
 
 
@@ -206,9 +219,10 @@ def resize_and_save_img(img: Image, size: int, dest_path: pathlib.Path) -> Image
         which is significantly faster than scaling down from a full resolution image.
         """
     scaled_width, scaled_height = _scale_dimensions_to_fit(
-        img.width, img.height, size, size)
+        img.width, img.height, size, size
+    )
     img = img.resize((scaled_width, scaled_height), resample=Image.ANTIALIAS)
-    logger.debug('Image resized to (%s, %s)', scaled_width, scaled_height)
+    logger.debug("Image resized to (%s, %s)", scaled_width, scaled_height)
     img.save(dest_path, quality=90)
-    logger.debug('Resized image saved to: %s', dest_path)
+    logger.debug("Resized image saved to: %s", dest_path)
     return img

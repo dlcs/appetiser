@@ -1,6 +1,4 @@
-from app.jp2.image import (
-    _scale_dimensions_to_fit,
-)
+from app.jp2.image import _scale_dimensions_to_fit
 
 
 def test_scale_dimensions_to_fit_smaller():
@@ -8,7 +6,8 @@ def test_scale_dimensions_to_fit_smaller():
     height = 200
     required = 200
     assert (width, height) == _scale_dimensions_to_fit(
-        width, height, required, required)
+        width, height, required, required
+    )
 
 
 def test_scale_dimensions_to_fit_half():
@@ -18,7 +17,8 @@ def test_scale_dimensions_to_fit_half():
     expected_width = 50
     expected_height = 100
     assert (expected_width, expected_height) == _scale_dimensions_to_fit(
-        width, height, required, required)
+        width, height, required, required
+    )
 
 
 def test_scale_dimensions_to_fit_half_width():
@@ -28,7 +28,8 @@ def test_scale_dimensions_to_fit_half_width():
     expected_width = 100
     expected_height = 50
     assert (expected_width, expected_height) == _scale_dimensions_to_fit(
-        width, height, required, required)
+        width, height, required, required
+    )
 
 
 def test_scale_dimensions_to_fit_third():
@@ -38,7 +39,8 @@ def test_scale_dimensions_to_fit_third():
     expected_width = 33
     expected_height = 100
     assert (expected_width, expected_height) == _scale_dimensions_to_fit(
-        width, height, required, required)
+        width, height, required, required
+    )
 
 
 def test_scale_dimensions_to_fit_third_round_up():
@@ -48,4 +50,5 @@ def test_scale_dimensions_to_fit_third_round_up():
     expected_width = 34
     expected_height = 100
     assert (expected_width, expected_height) == _scale_dimensions_to_fit(
-        width, height, required, required)
+        width, height, required, required
+    )
