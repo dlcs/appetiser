@@ -1,7 +1,6 @@
 import logging
 import shutil
 import typing
-import os
 import pathlib
 
 from PIL import (
@@ -60,11 +59,11 @@ def _make_derivatives(source_path: pathlib.Path, derivative_sizes: [int], output
     """ Manages the creation of derivatives (only thumbnails at present) for a given JPEG200 file,
         returning information about the derivatives and where they're located.
         """
-    img = kdu_expand_to_image(source_path)
+    src_img = kdu_expand_to_image(source_path)
     derivative_info = []
     for size in sorted(derivative_sizes, reverse=True):
         dest_path = output_dir / '{}_{}.jpg'.format(source_path.stem, size)
-        img = resize_and_save_img(img, size, dest_path)
+        img = resize_and_save_img(src_img, size, dest_path)
         derivative_info.append(
             _format_derivative_info(img, dest_path)
         )
