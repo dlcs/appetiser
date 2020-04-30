@@ -25,6 +25,12 @@ node('linux') {
     }
 }
 
+def runPreCommit() {
+    steps {
+        sh "pre-commit run --all-files"
+    }
+}
+
 def dockerBuild() {
     steps {
         sh "docker build -t digirati/appetiser:latest ."
