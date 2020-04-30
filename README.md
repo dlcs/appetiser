@@ -7,7 +7,7 @@ Replacement for jp2iser/tizer. Converts various image resources into JPEG2000 an
 The easiest way to get this running is using Docker.
 
 ```bash
-# build 
+# build
 docker build -t appetiser:latest .
 
 # run
@@ -22,7 +22,7 @@ e.g.
 ```bash
 docker run -it --rm -p 5080:80 \
 -e KAKADU_APPS_LOCATION=s3://my-s3-bucket/kdu77-apps.tar.gz \
--e AWS_ACCESS_KEY_ID=mykey \ 
+-e AWS_ACCESS_KEY_ID=mykey \
 -e AWS_SECRET_ACCESS_KEY=mysecretkey \
 -v /path/to/output:/opt/appetiser/out \
 -v /path/to/scratch:/scratch \
@@ -31,7 +31,7 @@ appetiser:latest
 
 ## Converting an Image
 
-Make a POST to `/convert` to start conversion process. The source image must be in a folder location that is accessible to the appetiser application. 
+Make a POST to `/convert` to start conversion process. The source image must be in a folder location that is accessible to the appetiser application.
 
 Sample payload (all folder locations are relative to `opt/appetiser/`):
 
@@ -47,4 +47,4 @@ Sample payload (all folder locations are relative to `opt/appetiser/`):
     "destination": "/opt/appetiser/out/the_converted.jp2",
     "thumbDir": "/opt/appetiser/out/thumbnails/"
 }
-```  
+```

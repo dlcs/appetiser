@@ -10,8 +10,8 @@ from PIL import (
 
 logger = logging.getLogger(__name__)
 
-# Allows images of any size to be processed without raising a 
-# warning or an error. 
+# Allows images of any size to be processed without raising a
+# warning or an error.
 Image.MAX_IMAGE_PIXELS = None
 
 
