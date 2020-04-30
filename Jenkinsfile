@@ -6,9 +6,16 @@ node('linux') {
             rev = checkout(scm)
         }
 
+        # run linter on the codebase
+
+        # sonarqube?
+
         stage('Build docker-image') {
+            # docker build that pulls down and includes dependencies
             dockerBuild()
         }
+
+        # run tests within the built docker image
 
         stage('Publish image') {
             withCredentials([usernamePassword(credentialsId: "dockerhub-digiratidlcs", usernameVariable: 'registryUsername', passwordVariable: 'registryPassword')]) {
