@@ -6,10 +6,6 @@ node('linux') {
             rev = checkout(scm)
         }
 
-        stage('Run pre-commit') {
-            runPreCommit()
-        }
-
         stage('Build docker-image') {
             dockerBuild()
         }
