@@ -75,7 +75,8 @@ def _convert_test_runner(
     assert response.json['height'] == orig_image.height
     assert response.json['width'] == orig_image.width
     if thumb_sizes:
-        for size, thumb_dict in zip(sorted(thumb_sizes), sorted(response.json['thumbs'], key=lambda x: max(x['height'], x['width']))):
+        for size, thumb_dict in zip(sorted(thumb_sizes), sorted(response.json['thumbs'],
+                                                                key=lambda x: max(x['height'], x['width']))):
             assert size == max(thumb_dict['height'], thumb_dict['width'])
             assert str(thumb_dir.joinpath('{}_{}'.format(
                 img_name, size)).with_suffix('.jpg')) == thumb_dict['path']
