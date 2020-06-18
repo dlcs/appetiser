@@ -16,7 +16,7 @@ docker run -it --rm -p 5080:80 appetiser:latest
 
 Appetiser needs access to Kakadu binaries. The default location of these binaries is specified by the `KAKADU_APPS_LOCATION` environment variable. Relevant AWS credentials will need to be passed to the docker container.
 
-Volumes will need to be mounted for reading/writing images.
+You will also need a volume mount for reading/writing images. Files are not passed as part of the request, instead a `source` parameter points to the file on disk.
 
 e.g.
 ```bash
@@ -24,7 +24,6 @@ docker run -it --rm -p 5080:80 \
 -e KAKADU_APPS_LOCATION=s3://my-s3-bucket/kdu77-apps.tar.gz \
 -e AWS_ACCESS_KEY_ID=mykey \ 
 -e AWS_SECRET_ACCESS_KEY=mysecretkey \
--v /path/to/output:/opt/appetiser/out \
 -v /path/to/scratch:/scratch \
 appetiser:latest
 ```
@@ -33,7 +32,7 @@ appetiser:latest
 
 Make a POST to `/convert` to start conversion process. The source image must be in a folder location that is accessible to the appetiser application. 
 
-Sample payload (all folder locations are relative to `opt/appetiser/`):
+Sample payload (all folder locations are relative to `/opt/appetiser/`):
 
 ```json
 {
