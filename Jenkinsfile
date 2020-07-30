@@ -1,5 +1,5 @@
 node('linux') {
-    container('buildkit') {
+    container('python-imaging-buildkit') {
         def rev
 
         stage('checkout scm') {
