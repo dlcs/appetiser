@@ -68,7 +68,7 @@ def test_kdu_compress_kdu_med_rgba(mocker):
         'LD_LIBRARY_PATH': '/path/to/kdu_lib',
         'PATH': '/path/to/kdu_compress'
     }
-    kdu_compress(
+    app.jp2.kdu.kdu_compress(
         pathlib.Path('/path/to/image.tiff'),
         pathlib.Path('/path/to/image.jp2'),
         'kdu_med',
@@ -97,7 +97,7 @@ def test_kdu_compress_kdu_med_layers_rgb(mocker):
         'LD_LIBRARY_PATH': '/path/to/kdu_lib',
         'PATH': '/path/to/kdu_compress'
     }
-    kdu_compress(
+    app.jp2.kdu.kdu_compress(
         pathlib.Path('/path/to/image.tiff'),
         pathlib.Path('/path/to/image.jp2'),
         'kdu_med_layers',
@@ -126,7 +126,7 @@ def test_kdu_compress_kdu_high_l(mocker):
         'LD_LIBRARY_PATH': '/path/to/kdu_lib',
         'PATH': '/path/to/kdu_compress'
     }
-    kdu_compress(
+    app.jp2.kdu.kdu_compress(
         pathlib.Path('/path/to/image.tiff'),
         pathlib.Path('/path/to/image.jp2'),
         'kdu_high',
@@ -155,7 +155,7 @@ def test_kdu_compress_kdu_max_1(mocker):
         'LD_LIBRARY_PATH': '/path/to/kdu_lib',
         'PATH': '/path/to/kdu_compress'
     }
-    kdu_compress(
+    app.jp2.kdu.kdu_compress(
         pathlib.Path('/path/to/image.tiff'),
         pathlib.Path('/path/to/image.jp2'),
         'kdu_max',
@@ -184,7 +184,7 @@ def test_kdu_expand_to_image(mocker):
         'PATH': '/path/to/kdu_expand'
     }
     expected_command = '/path/to/kdu_expand -i /path/to/image.jp2 -o /tmp/path/to/image.bmp -quiet -num_threads 4'
-    kdu_expand_to_image(pathlib.Path('/path/to/image.jp2'))
+    app.jp2.kdu.kdu_expand_to_image(pathlib.Path('/path/to/image.jp2'))
     subprocess.run.assert_called_once_with(
         expected_command,
         env=expected_env,

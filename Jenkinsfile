@@ -6,6 +6,9 @@ node('linux') {
             rev = checkout(scm)
         }
 
+        stage('Run pre-commit') {
+            runPreCommit()
+        }
         stage('Build docker-image') {
             dockerBuild()
         }
@@ -18,16 +21,16 @@ node('linux') {
     }
 }
 
+def runPreCommit() {
+    sh "pre-commit run --all-files"
+}
+
 def dockerBuild() {
-    steps {
-        sh "docker build -t digirati/appetiser:latest ."
-    }
+    sh "docker build -t digirati/appetiser:latest ."
 }
 
 def dockerPush(def registryUsername, def registryPassword, def buildNumber) {
-    steps {
-        sh "docker login --username \"${registryUsername}\" --password \"${registryPassword}\""
-        sh "docker tag digirati/appetiser:latest digirati/appetiser:${buildNumber}"
-        sh "docker push digirati/appetiser:${buildNumber}"
-    }
+    sh "docker login --username \"${registryUsername}\" --password \"${registryPassword}\""
+    sh "docker tag digirati/appetiser:latest digirati/appetiser:${buildNumber}"
+    sh "docker push digirati/appetiser:${buildNumber}"
 }

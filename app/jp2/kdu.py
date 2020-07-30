@@ -15,9 +15,10 @@ from .settings import (
 
 logger = logging.getLogger(__name__)
 
-# Allows images of any size to be processed without raising a 
-# warning or an error. 
+# Allows images of any size to be processed without raising a
+# warning or an error.
 Image.MAX_IMAGE_PIXELS = None
+
 
 def _run_kdu_command(kdu_command: str, env: dict):
     try:
@@ -32,7 +33,8 @@ def _run_kdu_command(kdu_command: str, env: dict):
         raise e
 
 
-def kdu_compress(source_path: pathlib.Path, dest_path: pathlib.Path, optimisation: str, image_mode: str) -> pathlib.Path:
+def kdu_compress(source_path: pathlib.Path, dest_path: pathlib.Path,
+                 optimisation: str, image_mode: str) -> pathlib.Path:
     """ Uses the kdu_compress command to convert a source image
         (in BMP, RAW, PBM, PGM, PPM or TIFF formats) to a JPEG2000.
         """
