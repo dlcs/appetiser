@@ -1,4 +1,4 @@
-node('linux') {
+node('linux-python') {
     container('python-imaging-buildkit') {
         def rev
 
