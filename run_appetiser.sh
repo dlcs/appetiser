@@ -9,4 +9,4 @@ export KDU_EXPAND=/usr/local/bin/kdu_expand
 export KDU_LIB=/usr/local/bin
 
 cd $APPETISER_DIR
-uwsgi --http 0.0.0.0:80 --master --need-app --module appetiser:appetiser --processes 5
+uwsgi --http 0.0.0.0:80 --master --need-app --module appetiser:appetiser --processes 5 --http-timeout $HTTP_TIMEOUT

@@ -4,6 +4,7 @@ ENV KAKADU_APPS_LOCATION s3://dlcs-dlcservices-bootstrap-objects/kdu77-apps.tar.
 ENV APPETISER_DIR /opt/appetiser
 ENV TMPDIR $APPETISER_DIR/tmp
 ENV OUTPUT_DIR $APPETISER_DIR/out/
+ENV HTTP_TIMEOUT 60
 
 RUN apt-get update -y && apt-get install -y cmake \
                                             netpbm \
@@ -21,6 +22,7 @@ RUN apt-get update -y && apt-get install -y cmake \
                                             python3-tk \
                                             libharfbuzz-dev \
                                             libfribidi-dev
+
 
 COPY . $APPETISER_DIR
 RUN chmod +x $APPETISER_DIR/run_tests.sh
