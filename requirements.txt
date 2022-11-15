@@ -1,6 +1,6 @@
 awscli==1.25.53
 Flask==2.2.2
-Pillow==9.2.0
+Pillow==9.3.0
 pytest==7.1.2
 pytest-mock==3.8.2
 uwsgi==2.0.20
