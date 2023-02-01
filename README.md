@@ -43,7 +43,9 @@ Sample payload (all folder locations are relative to `/opt/appetiser/`):
     "operation": "ingest",
     "optimisation": "kdu_med",
     "origin": "my_origin",
-    "destination": "/opt/appetiser/out/the_converted.jp2",
-    "thumbDir": "/opt/appetiser/out/thumbnails/"
+    "destination": "/scratch/out/the_converted.jp2",
+    "thumbDir": "/scratch/out/thumbnails/"
 }
 ```
+
+> Note that the destination _must_ end in "jp2" or kdu_compress call will fail.
