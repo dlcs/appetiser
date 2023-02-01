@@ -28,6 +28,14 @@ docker run -it --rm -p 5080:80 \
 appetiser:latest
 ```
 
+### Docker Compose
+
+There is a docker-compose file to ease running above, see .env.dist for example .env file.
+
+```bash
+docker-compose up
+```
+
 ## Converting an Image
 
 Make a POST to `/convert` to start conversion process. The source image must be in a folder location that is accessible to the appetiser application.
