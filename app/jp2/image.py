@@ -8,6 +8,8 @@ from PIL import (
     ImageCms,
 )
 
+from .kdu import image_modes
+
 logger = logging.getLogger(__name__)
 
 # Allows images of any size to be processed without raising a
@@ -63,6 +65,18 @@ def _uncompress_tiff(filepath: pathlib.Path) -> (pathlib.Path, dict):
             logger.debug('%s: saving as raw to %s', filepath, tiff_filepath)
             img.save(tiff_filepath, compression=None)
             filepath = tiff_filepath
+
+        img_mode = img_info.get('mode')
+        if img_mode not in image_modes:
+            logger.debug('%s: is not a known image mode.', img_mode)
+            img_filename = img.filename
+            updated_img = _convert_img_colour_profile(img, img_filename)
+            tiff_filepath = filepath.parent / ('raw_' + filepath.name)
+            logger.debug('%s: saving as raw to %s', filepath, tiff_filepath)
+            updated_img.save(tiff_filepath, compression=None)
+            filepath = tiff_filepath
+            img_info['mode'] = updated_img.mode
+
     return filepath, img_info
 
 

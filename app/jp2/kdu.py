@@ -19,6 +19,13 @@ logger = logging.getLogger(__name__)
 # warning or an error.
 Image.MAX_IMAGE_PIXELS = None
 
+image_modes = {
+    'L': '-no_palette',
+    '1': '-no_palette',
+    'RGB': '-jp2_space sRGB',
+    'RGBA': '-jp2_space sRGB -jp2_alpha'
+}
+
 
 def _run_kdu_command(kdu_command: str, env: dict):
     try:
@@ -39,13 +46,6 @@ def kdu_compress(source_path: pathlib.Path, dest_path: pathlib.Path,
     """ Uses the kdu_compress command to convert a source image
         (in BMP, RAW, PBM, PGM, PPM or TIFF formats) to a JPEG2000.
         """
-
-    image_modes = {
-        'L': '-no_palette',
-        '1': '-no_palette',
-        'RGB': '-jp2_space sRGB',
-        'RGBA': '-jp2_space sRGB -jp2_alpha'
-    }
 
     if image_mode not in image_modes:
         logger.warning(f"image_mode '{image_mode}' is not in known list")
