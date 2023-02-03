@@ -22,6 +22,7 @@ Image.MAX_IMAGE_PIXELS = None
 image_modes = {
     'L': '-no_palette',
     '1': '-no_palette',
+    'I;16B': '-no_palette',
     'RGB': '-jp2_space sRGB',
     'RGBA': '-jp2_space sRGB -jp2_alpha'
 }
