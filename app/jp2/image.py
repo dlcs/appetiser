@@ -210,7 +210,7 @@ def prepare_source_file(filepath: pathlib.Path) -> (pathlib.Path, dict):
         '.tif': _uncompress_tiff,
         '.tiff': _uncompress_tiff,
     }
-    f = img_file_funcs.get(filepath.suffix, _convert_img_to_tiff)
+    f = img_file_funcs.get(filepath.suffix.lower(), _convert_img_to_tiff)
     logger.debug('%s() to be applied to %s', f.__name__, filepath)
     return f(filepath)
 
