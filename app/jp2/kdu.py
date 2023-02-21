@@ -30,6 +30,7 @@ def _run_kdu_command(kdu_command: str, env: dict):
                        capture_output=True
                        )
     except subprocess.CalledProcessError as e:
+        logger.error(f"kdu command failed. Full output:{e.output}")
         raise e
 
 
@@ -45,6 +46,9 @@ def kdu_compress(source_path: pathlib.Path, dest_path: pathlib.Path,
         'RGB': '-jp2_space sRGB',
         'RGBA': '-jp2_space sRGB -jp2_alpha'
     }
+
+    if image_mode not in image_modes:
+        logger.warning(f"image_mode '{image_mode}' is not in known list")
 
     kdu_compress_templates = {
         'kdu_low':  '{kdu_compress_path} -i {input_path} -o {output_path} Clevels=7 "Cblk={{64,64}}"'

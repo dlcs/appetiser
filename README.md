@@ -28,6 +28,14 @@ docker run -it --rm -p 5080:80 \
 appetiser:latest
 ```
 
+### Docker Compose
+
+There is a docker-compose file to ease running above, see .env.dist for example .env file.
+
+```bash
+docker-compose up
+```
+
 ## Converting an Image
 
 Make a POST to `/convert` to start conversion process. The source image must be in a folder location that is accessible to the appetiser application.
@@ -43,7 +51,9 @@ Sample payload (all folder locations are relative to `/opt/appetiser/`):
     "operation": "ingest",
     "optimisation": "kdu_med",
     "origin": "my_origin",
-    "destination": "/opt/appetiser/out/the_converted.jp2",
-    "thumbDir": "/opt/appetiser/out/thumbnails/"
+    "destination": "/scratch/out/the_converted.jp2",
+    "thumbDir": "/scratch/out/thumbnails/"
 }
 ```
+
+> Note that the destination _must_ end in "jp2" or kdu_compress call will fail.

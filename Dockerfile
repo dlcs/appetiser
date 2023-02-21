@@ -23,12 +23,14 @@ RUN apt-get update -y && apt-get install -y cmake \
                                             libharfbuzz-dev \
                                             libfribidi-dev
 
+COPY requirements.txt $APPETISER_DIR/requirements.txt 
+RUN pip3 install --no-cache-dir -r $APPETISER_DIR/requirements.txt
 
 COPY . $APPETISER_DIR
 RUN chmod +x $APPETISER_DIR/run_tests.sh
 RUN chmod +x $APPETISER_DIR/run_appetiser.sh
 
-RUN pip3 install --no-cache-dir -r $APPETISER_DIR/requirements.txt
+LABEL org.opencontainers.image.source=https://github.com/dlcs/appetiser
 
 RUN mkdir $TMPDIR $OUTPUT_DIR
 WORKDIR $APPETISER_DIR
