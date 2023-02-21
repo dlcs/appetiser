@@ -102,7 +102,7 @@ def _uncompress_tiff(filepath: pathlib.Path) -> (pathlib.Path, dict):
 
         img_mode = img_info.get('mode')
         if img_mode not in image_modes:
-            logger.debug('%s: has unknown image mode.', filepath, img_mode)
+            logger.debug('%s: has unknown image mode: %s', filepath, img_mode)
             return _convert_tiff_mode(filepath, img, img_info)
 
     return filepath, img_info
