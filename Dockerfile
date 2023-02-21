@@ -1,4 +1,4 @@
-FROM python:3.7-slim-stretch
+FROM python:3.10-slim-bullseye
 
 ENV KAKADU_APPS_LOCATION s3://dlcs-dlcservices-bootstrap-objects/kdu77-apps.tar.gz
 ENV APPETISER_DIR /opt/appetiser

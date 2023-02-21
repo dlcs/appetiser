@@ -8,6 +8,8 @@ from PIL import (
     ImageCms,
 )
 
+from .kdu import image_modes
+
 logger = logging.getLogger(__name__)
 
 # Allows images of any size to be processed without raising a
@@ -47,6 +49,40 @@ def get_img_info(filepath: pathlib.Path) -> (pathlib.Path, dict):
     return filepath, img_info
 
 
+def _convert_tiff_mode(filepath: pathlib.Path, img: Image, img_info: dict) -> (pathlib.Path, dict):
+    """
+    Image is already a TIFF but with a mode that we don't have KDU commands for
+    Convert it to RGB + ensure XResolution + YResolution tags are set
+    """
+    x_resolution_tag = 282
+    y_resolution_tag = 283
+
+    x_res = img.tag_v2.get(x_resolution_tag, -1)
+    y_res = img.tag_v2.get(y_resolution_tag, -1)
+
+    img = _convert_img_colour_profile(img, img.filename)
+    tiff_filepath = filepath.parent / ('raw_' + filepath.name)
+
+    image_data = io.BytesIO()
+
+    # write data to BytesIO and read again to get as PIL.TiffImagePlugin.TiffImageFile
+    img.save(image_data, format='TIFF', compression=None)
+    with Image.open(image_data, formats=['TIFF']) as new_img:
+        if not new_img.tag_v2.get(x_resolution_tag, None):
+            logger.debug('%s: has no XResolution tag, setting from original %s', filepath, x_res)
+            new_img.tag_v2[x_resolution_tag] = x_res
+
+        if not new_img.tag_v2.get(y_resolution_tag, None):
+            logger.debug('%s: has no YResolution tag, setting from original %s', filepath, y_res)
+            new_img.tag_v2[y_resolution_tag] = y_res
+
+        logger.debug('%s: saving as raw to %s', filepath, tiff_filepath)
+        new_img.save(tiff_filepath, compression=None)
+        img_info['mode'] = new_img.mode
+
+    return tiff_filepath, img_info
+
+
 def _uncompress_tiff(filepath: pathlib.Path) -> (pathlib.Path, dict):
     """ Checks whether a tiff file has been saved with compression,
         and if so, will save an uncompressed version under a new name.
@@ -63,6 +99,12 @@ def _uncompress_tiff(filepath: pathlib.Path) -> (pathlib.Path, dict):
             logger.debug('%s: saving as raw to %s', filepath, tiff_filepath)
             img.save(tiff_filepath, compression=None)
             filepath = tiff_filepath
+
+        img_mode = img_info.get('mode')
+        if img_mode not in image_modes:
+            logger.debug('%s: has unknown image mode: %s', filepath, img_mode)
+            return _convert_tiff_mode(filepath, img, img_info)
+
     return filepath, img_info
 
 
@@ -168,7 +210,7 @@ def prepare_source_file(filepath: pathlib.Path) -> (pathlib.Path, dict):
         '.tif': _uncompress_tiff,
         '.tiff': _uncompress_tiff,
     }
-    f = img_file_funcs.get(filepath.suffix, _convert_img_to_tiff)
+    f = img_file_funcs.get(filepath.suffix.lower(), _convert_img_to_tiff)
     logger.debug('%s() to be applied to %s', f.__name__, filepath)
     return f(filepath)
 
