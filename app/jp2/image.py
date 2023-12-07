@@ -249,7 +249,7 @@ def resize_and_save_img(img: Image, size: int, dest_path: pathlib.Path) -> Image
         """
     scaled_width, scaled_height = _scale_dimensions_to_fit(
         img.width, img.height, size, size)
-    img = img.resize((scaled_width, scaled_height), resample=Image.ANTIALIAS)
+    img = img.resize((scaled_width, scaled_height), resample=Image.LANCZOS)
     logger.debug('Image resized to (%s, %s)', scaled_width, scaled_height)
     img.save(dest_path, quality=90)
     logger.debug('Resized image saved to: %s', dest_path)
