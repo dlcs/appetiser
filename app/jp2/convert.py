@@ -89,6 +89,20 @@ def _ingest_image(source_path: pathlib.Path, dest_path: pathlib.Path, optimisati
         return dest_path, image_info
 
 
+def _image_only_operation(source_path: pathlib.Path,
+                     dest_path: pathlib.Path,
+                     kakadu_optimisation: str = 'kdu_med',
+                     **kwargs) -> dict:
+    ingested_path, image_info = _ingest_image(
+        source_path, dest_path, kakadu_optimisation)
+
+    return {
+        'jp2': str(ingested_path),
+        'height': image_info.get('height'),
+        'width': image_info.get('width'),
+    }
+
+
 def _derivatives_operation(source_path: pathlib.Path,
                            thumbnail_dir: pathlib.Path,  # TODO: shouldn't need to provide thumbnail dir
                            thumbnail_sizes: [int], **kwargs) -> dict:
@@ -132,7 +146,8 @@ def process(**kwargs) -> dict:
 
     OPERATIONS = {
         'ingest': _ingest_operation,
-        'derivatives-only': _derivatives_operation
+        'derivatives-only': _derivatives_operation,
+        'image-only': _image_only_operation
     }
     op_func = OPERATIONS.get(kwargs.pop('operation', 'error'), _error)
     result = op_func(**kwargs)
