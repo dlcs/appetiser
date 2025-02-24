@@ -142,3 +142,12 @@ def test_convert_ppm(appetiser_client, fixtures_dir, temp_dir):
         'kdu_med',
         [30, 600, 400, 100]
     )
+
+def test_convert_png(appetiser_client, fixtures_dir, temp_dir):
+    _convert_test_runner(
+        appetiser_client,
+        temp_dir,
+        fixtures_dir.joinpath('sloth.png'),
+        'kdu_med',
+        [30, 600, 400, 100]
+    )

@@ -141,6 +141,25 @@ def _correct_img_orientation(img: Image, img_filename: str = '') -> Image:
 
     return img
 
+"""
+    Checks if an image has transparency by first checking for a transparency property, 
+    second examining the palette for transparent colors,
+    and third checking for an alpha component on RGBA images.
+    
+    https://stackoverflow.com/a/58567453
+"""
+def _image_has_transparency(img: Image) -> bool:
+    if img.info.get("transparency", None) is not None:
+        return True
+    if img.mode == "P":
+        transparent = img.info.get("transparency", -1)
+        for _, index in img.getcolors():
+            if index == transparent:
+                return True
+    elif img.mode == "RGBA":
+        return True
+
+    return False
 
 def _convert_img_colour_profile(img: Image, img_filename: str = '') -> Image:
     """ If the image has ICC profile information, apply a transformation to this
@@ -161,8 +180,9 @@ def _convert_img_colour_profile(img: Image, img_filename: str = '') -> Image:
                      img_colour_profile_name,
                      sRGB_profile.profile_description
                      )
+        output_mode = 'RGBA' if _image_has_transparency(img) else 'RGB'
         img = ImageCms.profileToProfile(
-            img, img_colour_profile, sRGB_profile, outputMode='RGB')
+            img, img_colour_profile, sRGB_profile, outputMode=output_mode)
 
     return img
 
