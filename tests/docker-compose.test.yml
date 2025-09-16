@@ -1,0 +1,13 @@
+services:
+  appetiser:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../local_data/kdu_src:/kdu_src
+      - ./fixtures:/test_fixtures
+      - ./output:/test_output
+      - ~\.aws:/root/.aws
+      # - ..:/opt/appetiser

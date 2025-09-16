@@ -1,27 +1,65 @@
-import flask
-import pathlib
 import pytest
 import tempfile
+import pathlib
+import collections
+from collections.abc import (
+    Generator,
+)
 
-from appetiser import appetiser
+from .utils import (
+    is_responsive_404,
+)
+
+SharedHostContainerDirectory = collections.namedtuple(
+    "SharedHostContainerDirectory", ["host_path", "container_path"]
+)
 
 
 @pytest.fixture
-def appetiser_client() -> flask.Flask:
-    appetiser.config['TESTING'] = True
-    client = appetiser.test_client()
-    yield client
+def tests_dir():
+    return pathlib.Path(__file__).resolve().parent
+
+
+@pytest.fixture(scope="session")
+def docker_compose_file(pytestconfig):
+    return pathlib.Path(__file__).resolve().parent / "docker-compose.test.yml"
+
+
+@pytest.fixture(scope="session")
+def appetiser_service(docker_ip, docker_services):
+    """
+    Ensure that Django service is up and responsive.
+    """
+
+    # `port_for` takes a container port and returns the corresponding host port
+    port = docker_services.port_for("appetiser", 8000)
+    url = "http://{}:{}".format(docker_ip, port)
+    url404 = f"{url}/missing"
+    docker_services.wait_until_responsive(
+        timeout=300.0, pause=0.1, check=lambda: is_responsive_404(url404)
+    )
+    return url
 
 
 @pytest.fixture
-def fixtures_dir() -> pathlib.Path:
-    return pathlib.Path(__file__).parent / 'fixtures'
+def fixtures_dir() -> SharedHostContainerDirectory:
+    """Relies on mounting the local fixtures directory to the `/test_fixtures` location
+    in the `volumes` block of the docker-compose.test.yml file.
+    """
+    return SharedHostContainerDirectory(
+        host_path=pathlib.Path("./fixtures"),
+        container_path=pathlib.Path("/test_fixtures"),
+    )
 
 
 @pytest.fixture
-def temp_dir() -> pathlib.Path:
-    """ Specifically to avoid using pytest's `tmpdir` which uses
-        py.path rather than pathlib.
-        """
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield pathlib.Path(tmpdir)
+def output_dir() -> Generator[SharedHostContainerDirectory, None, None]:
+    """Relies on mounting a local output directory to the `/test_output` location
+    in the `volumes` block of the docker-compose.test.yml file.
+    """
+    with tempfile.TemporaryDirectory(dir="./output") as tmpdir:
+        host_path = pathlib.Path(tmpdir)
+        yield SharedHostContainerDirectory(
+            host_path=host_path,
+            container_path=pathlib.Path(f"/test_output/{host_path.name}"),
+        )
