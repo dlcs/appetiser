@@ -30,4 +30,5 @@ cp $KDU_SRC_DIR/kakadu-[0-9].[0-9].[0-9]/lib/Linux-x86-64-gcc/* $KDU_LIB
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$KDU_LIB
 
 cd $APPETISER_DIR
-uv run uwsgi --http 0.0.0.0:8000 --master --need-app --module appetiser:app --processes 5 --http-timeout $HTTP_TIMEOUT
+# uv run uwsgi --http 0.0.0.0:8000 --master --need-app --module appetiser:app --processes 5 --http-timeout $HTTP_TIMEOUT
+uv run fastapi run appetiser/main.py --proxy-headers --port 8000
