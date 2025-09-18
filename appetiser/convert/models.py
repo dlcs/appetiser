@@ -44,13 +44,13 @@ class ConvertRequest(BaseModel):
     imageId: str
     origin: str
     source: FilePath
-    destination: Path
-    thumbDir: DirectoryPath
-    thumbIIIFSizes: List[
-        Annotated[str, StringConstraints(pattern=IIIF_SIZE_STR_PATTERN)]
-    ]
-    optimisation: KDUCompressOptimisation
     operation: ConvertOperation
+    destination: Path | None = None
+    thumbDir: DirectoryPath | None = None
+    thumbIIIFSizes: (
+        List[Annotated[str, StringConstraints(pattern=IIIF_SIZE_STR_PATTERN)]] | None
+    ) = None
+    optimisation: KDUCompressOptimisation | None = None
 
 
 class ConvertResponse(BaseModel):

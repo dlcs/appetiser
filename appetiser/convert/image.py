@@ -38,7 +38,7 @@ def _extract_img_info(img: PILImage) -> dict:
     return {"mode": img.mode, "height": img.height, "width": img.width}
 
 
-def get_img_info(filepath: Path) -> (Path, dict):
+def get_img_info(filepath: Path) -> tuple[Path, dict]:
     """For file formats that don't require conversion or other preparation
     before being converted to JPEG2000, this will open the file
     and get the image height, width and mode for use in the conversion
@@ -50,7 +50,9 @@ def get_img_info(filepath: Path) -> (Path, dict):
     return filepath, img_info
 
 
-def _convert_tiff_mode(filepath: Path, img: Image, img_info: dict) -> (Path, dict):
+def _convert_tiff_mode(
+    filepath: Path, img: PILImage, img_info: dict
+) -> tuple[Path, dict]:
     """
     Image is already a TIFF but with a mode that we don't have KDU commands for
     Convert it to RGB + ensure XResolution + YResolution tags are set
@@ -88,7 +90,7 @@ def _convert_tiff_mode(filepath: Path, img: Image, img_info: dict) -> (Path, dic
     return tiff_filepath, img_info
 
 
-def _uncompress_tiff(filepath: Path) -> (Path, dict):
+def _uncompress_tiff(filepath: Path) -> tuple[Path, dict]:
     """Checks whether a tiff file has been saved with compression,
     and if so, will save an uncompressed version under a new name.
     While the image is open gets the image mode for use in the
@@ -171,7 +173,7 @@ def _convert_img_colour_profile(img: PILImage, img_filename: str = "") -> PILIma
     return img
 
 
-def _convert_img_to_tiff(filepath: Path) -> (Path, dict):
+def _convert_img_to_tiff(filepath: Path) -> tuple[Path, dict]:
     """Attempts to open a file with Pillow, correct image orienation,
     set the colour profile, and save the image as a tiff.
     While the image is open gets the image mode for use in the
@@ -194,7 +196,7 @@ def _rasterise_pdf(filepath: Path) -> Path:
     pass
 
 
-def prepare_source_file(filepath: Path) -> (Path, dict):
+def prepare_source_file(filepath: Path) -> tuple[Path, dict]:
     """Prepares a source file for processing by kakadu by establishing the
     format and converting as required.
     From kdu_compress -usage:
@@ -272,7 +274,6 @@ def resize_and_save_img(
     Returns the Image to allow for progressive scaling down for multiple sizes,
     which is significantly faster than scaling down from a full resolution image.
     """
-
     img = img.resize((width, height), resample=Image.LANCZOS)
     logger.debug(f"Image resized: {width=}, {height=})")
     img.save(dest_path, quality=90)
