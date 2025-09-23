@@ -7,6 +7,7 @@ services:
       - "8000:8000"
     volumes:
       - ./local_data/kdu_src:/kdu_src
-      - ./local_data/test_source_dir:/test_source_dir
+      - ./tests/fixtures:/test_fixtures
+      - ./local_data/output:/test_output
       - ~\.aws:/root/.aws
       # - .:/opt/appetiser

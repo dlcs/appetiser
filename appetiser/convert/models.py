@@ -57,7 +57,7 @@ class ConvertResponse(BaseModel):
     jobId: str
     imageId: str
     origin: str
-    optimisation: KDUCompressOptimisation
+    optimisation: KDUCompressOptimisation | None = None
     jp2: FilePath | None = None
     height: int
     width: int

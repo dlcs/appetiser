@@ -131,6 +131,13 @@ def create_thumbnails(
         )
         for iiif_size_str in thumb_iiif_size
     ]
+    # Deduplicate using the thumb path as a unique key
+    calculated_thumb_info = {
+        calc_thumb_info.path: calc_thumb_info
+        for calc_thumb_info in calculated_thumb_info
+    }
+    calculated_thumb_info = calculated_thumb_info.values()
+
     for calc_thumb_info in sorted(
         calculated_thumb_info, reverse=True, key=lambda x: x.width
     ):

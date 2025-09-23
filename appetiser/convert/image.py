@@ -147,27 +147,46 @@ def _correct_img_orientation(img: PILImage, img_filename: str = "") -> PILImage:
     return img
 
 
+def _image_has_transparency(img: PILImage) -> bool:
+    """
+    Checks if an image has transparency by first checking for a transparency property,
+    second examining the palette for transparent colors,
+    and third checking for an alpha component on RGBA images.
+
+    https://stackoverflow.com/a/58567453
+    """
+    if img.info.get("transparency", None) is not None:
+        return True
+    if img.mode == "P":
+        transparent = img.info.get("transparency", -1)
+        for _, index in img.getcolors():
+            if index == transparent:
+                return True
+    elif img.mode == "RGBA":
+        return True
+
+    return False
+
+
 def _convert_img_colour_profile(img: PILImage, img_filename: str = "") -> PILImage:
     """If the image has ICC profile information, apply a transformation to this
     image from that ICC colour profile to the sRGB colour profile.
     """
     img_colour_profile_bytes = img.info.get("icc_profile")
     if img_colour_profile_bytes:
-        logger.debug("%s: extracting embedded colour profile", img_filename)
+        logger.debug(f"Extracting embedded colour profile: {img_filename}")
         img_colour_profile = ImageCms.ImageCmsProfile(
             io.BytesIO(img_colour_profile_bytes)
         )
         img_colour_profile_name = ImageCms.getProfileName(img_colour_profile)
-        logger.debug("%s: icc colour profile %s", img_filename, img_colour_profile_name)
+        logger.debug(f"Using icc colour profile: {img_colour_profile_name}")
         sRGB_profile = ImageCms.createProfile("sRGB")
         logger.debug(
-            "%s: converting colour profile from %s to %s",
-            img_filename,
-            img_colour_profile_name,
-            sRGB_profile.profile_description,
+            f"Converting colour profile: {img_colour_profile_name} to {sRGB_profile.profile_description}, {img_filename}"
         )
+        output_mode = "RGBA" if _image_has_transparency(img) else "RGB"
         img = ImageCms.profileToProfile(
-            img, img_colour_profile, sRGB_profile, outputMode="RGB"
+            img, img_colour_profile, sRGB_profile, outputMode=output_mode
         )
 
     return img
