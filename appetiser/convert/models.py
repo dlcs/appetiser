@@ -13,7 +13,9 @@ from typing import (
 )
 
 IIIF_SIZE_STR_PATTERN = re.compile(
-    r"^!?(?P<width>\d+),(?P<height>\d+)|(?P<just_width>\d+),|,(?P<just_height>\d+)$"
+    # r"^!?(?P<width>\d+),(?P<height>\d+)|(?P<just_width>\d+),|,(?P<just_height>\d+)$"
+    # r"^!(?P<img_width>\d+),(?P<img_height>\d+)|\^(?P<upscale_width>\d+),(?P<upscale_height>\d+)|(?P<width>\d+),(?P<height>\d+)|\^(?P<upscale_just_width>\d+),|(?P<just_width>\d+),|\^,(?P<upscale_just_height>\d+)|,(?P<just_height>\d+)$"
+    r"^!(?P<img_width>\d+),(?P<img_height>\d+)$|^\^(?P<upscale_width>\d+),(?P<upscale_height>\d+)$|^(?P<width>\d+),(?P<height>\d+)$|^\^(?P<upscale_just_width>\d+),$|^(?P<just_width>\d+),$|^\^,(?P<upscale_just_height>\d+)$|^,(?P<just_height>\d+)$"
 )
 
 
@@ -47,9 +49,9 @@ class ConvertRequest(BaseModel):
     operation: ConvertOperation
     destination: Path | None = None
     thumbDir: DirectoryPath | None = None
-    thumbIIIFSizes: (
-        List[Annotated[str, StringConstraints(pattern=IIIF_SIZE_STR_PATTERN)]] | None
-    ) = None
+    thumbIIIFSizes: List[
+        Annotated[str, StringConstraints(pattern=IIIF_SIZE_STR_PATTERN)]
+    ] = []
     optimisation: KDUCompressOptimisation | None = None
 
 
@@ -58,7 +60,7 @@ class ConvertResponse(BaseModel):
     imageId: str
     origin: str
     optimisation: KDUCompressOptimisation | None = None
-    jp2: FilePath | None = None
+    jp2: FilePath = ""
     height: int
     width: int
-    thumbs: List[ThumbInfo] | None = None
+    thumbs: List[ThumbInfo] = []

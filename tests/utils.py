@@ -83,11 +83,10 @@ def convert_test_runner(
         ):
             expected_width = expected_thumb_size["width"]
             expected_height = expected_thumb_size["height"]
-            print(response_thumb_info)
             assert response_thumb_info["path"] == str(
                 thumb_dir / f"{img_src.stem}_{expected_width}_{expected_height}.jpg"
             )
             assert response_thumb_info["width"] == expected_width
             assert response_thumb_info["height"] == expected_height
     else:
-        assert response_json.get("thumbs") is None
+        assert response_json.get("thumbs") == []

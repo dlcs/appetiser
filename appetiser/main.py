@@ -12,7 +12,10 @@ from .convert import (
 )
 
 
-logging.basicConfig(format="%(levelname)s - %(name)s: %(message)s", level=logging.DEBUG)
+logging.basicConfig(
+    format="%(levelname)s - %(name)s.%(funcName)s - %(filename)s:%(lineno)d - %(message)s",
+    level=logging.DEBUG,
+)
 
 logger = logging.getLogger(__name__)
 app = fastapi.FastAPI(title="appetiser")

@@ -258,29 +258,23 @@ def scale_dimensions_to_fit(
     if req_width:
         dec_req_width = decimal.Decimal(req_width)
         width_scale = dec_req_width / dec_width
+
     height_scale = decimal.Decimal(0.0)
     if req_height:
         dec_req_height = decimal.Decimal(req_height)
         height_scale = dec_req_height / dec_height
 
-    if width_scale and height_scale:
-        scale = min(width_scale, height_scale)
-        logger.info(f"{scale=}")
-    elif width_scale:
-        scale = width_scale
-    elif height_scale:
-        scale = height_scale
-    else:
-        raise ValueError(
-            f"Can't get scale factor for args: ({width=}, {height=}, {req_width=}, {req_height=} "
-        )
+    if not height_scale and width_scale:
+        height_scale = width_scale
+    if not width_scale and height_scale:
+        width_scale = height_scale
     logger.debug(
-        f"Scale factor calculated as: ({scale=}, {width=}, {height=}, {req_width=}, {req_height=})",
+        f"Scale factor calculated as: ({width_scale=}, {height_scale=}, {width=}, {height=}, {req_width=}, {req_height=})",
     )
-    scaled_int_width = int((dec_width * scale).to_integral_exact())
-    scaled_int_height = int((dec_height * scale).to_integral_exact())
+    scaled_int_width = int((dec_width * width_scale).to_integral_exact())
+    scaled_int_height = int((dec_height * height_scale).to_integral_exact())
     logger.debug(
-        f"Image resized: ({dec_width=}, {dec_height=}, {scaled_int_width=}, {scaled_int_height=})",
+        f"Scaled image dimensions: ({dec_width=}, {dec_height=}, {scaled_int_width=}, {scaled_int_height=})",
     )
     return scaled_int_width, scaled_int_height
 
