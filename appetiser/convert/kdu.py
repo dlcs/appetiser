@@ -74,7 +74,9 @@ def kdu_compress(
     """
 
     if image_mode not in IMAGE_MODES:
-        logger.warning(f"image_mode '{image_mode}' is not in known list")
+        raise ValueError(
+            f"image_mode '{image_mode}' is not in known list for kdu_compress"
+        )
 
     compress_env = {"LD_LIBRARY_PATH": config.KDU_LIB, "PATH": config.KDU_COMPRESS}
 
@@ -95,7 +97,6 @@ def kdu_compress(
 def kdu_expand_to_image(config: ConvertConfig, source_path: Path) -> PILImage:
     """Uses the kdu_expand command to decompress a JPEG2000 image to a PIL
     Image.
-    #TODO - is `-reduce` required in kdu_expand call?
     """
 
     kdu_expand_template = (

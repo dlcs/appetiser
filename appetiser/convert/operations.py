@@ -197,7 +197,7 @@ def create_thumbnails(
     thumb_iiif_size: List[str],
     thumb_dir: Path,
 ):
-    """Manages the creation of derivatives (only thumbnails at present) for a given JPEG2000 file,
+    """Manages the creation of derivatives (only thumbnails at present) for a given image file,
     returning information about the derivatives and where they're located.
     """
     if source.suffix.lower() == ".jp2":

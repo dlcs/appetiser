@@ -18,9 +18,7 @@ Image.MAX_IMAGE_PIXELS = None
 
 
 def is_tile_optimised_jp2(filepath: Path) -> bool:
-    """Determines if a file is a JPEG2000 and whether it is optimised.
-    TODO: check for optimisation rather than just based on extension.
-    """
+    """Determines if a file is a JPEG2000 and whether it is optimised."""
     return filepath.suffix == ".jp2"
 
 

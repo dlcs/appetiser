@@ -13,8 +13,6 @@ from typing import (
 )
 
 IIIF_SIZE_STR_PATTERN = re.compile(
-    # r"^!?(?P<width>\d+),(?P<height>\d+)|(?P<just_width>\d+),|,(?P<just_height>\d+)$"
-    # r"^!(?P<img_width>\d+),(?P<img_height>\d+)|\^(?P<upscale_width>\d+),(?P<upscale_height>\d+)|(?P<width>\d+),(?P<height>\d+)|\^(?P<upscale_just_width>\d+),|(?P<just_width>\d+),|\^,(?P<upscale_just_height>\d+)|,(?P<just_height>\d+)$"
     r"^!(?P<img_width>\d+),(?P<img_height>\d+)$|^\^(?P<upscale_width>\d+),(?P<upscale_height>\d+)$|^(?P<width>\d+),(?P<height>\d+)$|^\^(?P<upscale_just_width>\d+),$|^(?P<just_width>\d+),$|^\^,(?P<upscale_just_height>\d+)$|^,(?P<just_height>\d+)$"
 )
 
