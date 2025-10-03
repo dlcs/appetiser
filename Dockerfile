@@ -34,7 +34,6 @@ LABEL org.opencontainers.image.source=https://github.com/dlcs/appetiser
 
 RUN mkdir $TMPDIR $OUTPUT_DIR
 WORKDIR $APPETISER_DIR
-RUN uv sync --locked
+RUN uv sync --locked --no-dev
 
-EXPOSE 80
 CMD ["./run_appetiser.sh"]

@@ -10,4 +10,3 @@ services:
       - ./tests/fixtures:/test_fixtures
       - ./local_data/output:/test_output
       - ~\.aws:/root/.aws
-      # - .:/opt/appetiser
