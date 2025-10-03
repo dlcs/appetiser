@@ -102,7 +102,6 @@ def convert(
 ) -> ConvertResponse:
     logger.debug(f"convert endpoint request: {convert_request=}")
     try:
-
         operation_func = CONVERT_OPERATION_MAPPING[convert_request.operation]
         logger.info(f"Mapped {convert_request.operation=} to {operation_func}")
         response_kwargs = operation_func(config=convert_config, request=convert_request)

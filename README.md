@@ -2,10 +2,28 @@
 
 Replacement for jp2iser/tizer. Converts various image resources into JPEG2000 and a collection of thumbnails.
 
-## Getting Started
+## Dependencies
 
-The easiest way to get this running is using Docker.
+### Kakadu
 
+Appetiser is dependent on being able to access the compiled binaries for Kakadu as a tarball. In production it is expected that this will be an S3 file location that appetiser has access to at run-time, set with the environment variable: 
+```sh
+KDU_BINARIES=s3://bucket/path-/to/kdu/binaries.tar
+```
+
+### Python 
+Python dependencies for appetiser are managed using [uv](https://docs.astral.sh/uv/). 
+
+Development and testing dependencies should be added using the `--dev` flag, e.g. 
+
+```sh
+uv add --dev httpx
+```
+
+### OS 
+## Running locally
+
+A [docker-compose.yml](./docker-compose.yml) file is provided for local development. 
 ```bash
 # build
 docker build -t appetiser:latest .

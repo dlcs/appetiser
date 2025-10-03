@@ -15,7 +15,7 @@ SharedHostContainerDirectory = collections.namedtuple(
 )
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def tests_dir():
     return pathlib.Path(__file__).resolve().parent
 
@@ -41,23 +41,23 @@ def appetiser_service(docker_ip, docker_services):
     return url
 
 
-@pytest.fixture
-def fixtures_dir() -> SharedHostContainerDirectory:
+@pytest.fixture(scope="session")
+def fixtures_dir(tests_dir) -> SharedHostContainerDirectory:
     """Relies on mounting the local fixtures directory to the `/test_fixtures` location
     in the `volumes` block of the docker-compose.test.yml file.
     """
     return SharedHostContainerDirectory(
-        host_path=pathlib.Path("./fixtures"),
+        host_path=(tests_dir / "fixtures"),
         container_path=pathlib.Path("/test_fixtures"),
     )
 
 
-@pytest.fixture
-def output_dir() -> Generator[SharedHostContainerDirectory, None, None]:
+@pytest.fixture(scope="session")
+def output_dir(tests_dir) -> Generator[SharedHostContainerDirectory, None, None]:
     """Relies on mounting a local output directory to the `/test_output` location
     in the `volumes` block of the docker-compose.test.yml file.
     """
-    with tempfile.TemporaryDirectory(dir="./output") as tmpdir:
+    with tempfile.TemporaryDirectory(dir=(tests_dir / "output")) as tmpdir:
         host_path = pathlib.Path(tmpdir)
         yield SharedHostContainerDirectory(
             host_path=host_path,

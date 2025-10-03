@@ -11,7 +11,6 @@ from .kdu import (
 )
 from .image import (
     is_tile_optimised_jp2,
-    get_img_info,
     prepare_source_file,
     scale_dimensions_to_fit,
     resize_and_save_img,
@@ -83,7 +82,7 @@ def _parse_iiif_size_str(
         img_width = int(match_groups["img_width"])
         img_height = int(match_groups["img_height"])
         logger.debug(f"Matched: {img_width=} {img_height=}")
-        if img_width >= src_width or img_height >= src_height:
+        if img_width >= src_width and img_height >= src_height:
             width = None
             height = None
         else:

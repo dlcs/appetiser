@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 def convert_image(config: ConvertConfig, request: ConvertRequest) -> dict:
-    logger.debug("Running")
     ingested_path, image_info = convert_image_to_jp2(
         config=config,
         source=request.source,

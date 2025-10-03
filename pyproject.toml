@@ -17,3 +17,11 @@ dev = [
     "pytest>=8.4.2",
     "httpx>=0.28.1",
 ]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra"
+testpaths = [
+    "tests",
+]
+norecursedirs =  ["tests/_old_image_tests"]

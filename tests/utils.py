@@ -76,10 +76,16 @@ def convert_test_runner(
     assert response.status_code == status
     for key, expected_value in expected_response_json.items():
         assert response_json[key] == expected_value
+
     if thumb_iiif_sizes and expected_thumb_sizes:
+        sorted_response_thumbs = sorted(
+            response_json["thumbs"], key=lambda x: x["width"]
+        )
+        sorted_expected_thumbs = sorted(expected_thumb_sizes, key=lambda x: x["width"])
+
+        assert len(sorted_response_thumbs) == len(sorted_expected_thumbs)
         for response_thumb_info, expected_thumb_size in zip(
-            sorted(response_json["thumbs"], key=lambda x: x["width"]),
-            sorted(expected_thumb_sizes, key=lambda x: x["width"]),
+            sorted_response_thumbs, sorted_expected_thumbs
         ):
             expected_width = expected_thumb_size["width"]
             expected_height = expected_thumb_size["height"]

@@ -77,3 +77,44 @@ def test_convert_ingest_png(appetiser_service, fixtures_dir, output_dir):
             }
         ],
     )
+
+
+def test_convert_ingest_landscape_img(appetiser_service, fixtures_dir, output_dir):
+    convert_test_runner(
+        appetiser_service=appetiser_service,
+        output_dir=output_dir,
+        fixtures_dir=fixtures_dir,
+        img_path="1280_752_landscape.jpg",
+        expected_jp2_name="1280_752_landscape.jp2",
+        optimisation="kdu_med",
+        operation="ingest",
+        thumb_iiif_sizes=[
+            "!100,100",
+            "!200,200",
+            "!400,400",
+            "!1024,1024",
+            "!1064,1064",
+        ],
+        expected_thumb_sizes=[
+            {
+                "width": 1064,
+                "height": 625,
+            },
+            {
+                "width": 1024,
+                "height": 602,
+            },
+            {
+                "width": 400,
+                "height": 235,
+            },
+            {
+                "width": 200,
+                "height": 118,
+            },
+            {
+                "width": 100,
+                "height": 59,
+            },
+        ],
+    )
