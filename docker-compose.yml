@@ -1,15 +1,12 @@
-version: '3'
-
 services:
   appetiser:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5080:80"
-    env_file:
-      - .env
+      - "8000:8000"
     volumes:
-      - $HOME\Docker\scratch\appetiser:/scratch
-      #- $HOME\.aws:/root/.aws
-    # entrypoint: /opt/appetiser/run_tests.sh
+      - ./local_data/kdu_src:/kdu_src
+      - ./tests/fixtures:/test_fixtures
+      - ./local_data/output:/test_output
+      - ~\.aws:/root/.aws

@@ -1,0 +1,27 @@
+[project]
+name = "appetiser"
+version = "1.0.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "awscli>=1.42.19",
+    "fastapi[all,standard]>=0.116.2",
+    "pillow>=11.3.0",
+    "pyuwsgi>=2.0.30",
+]
+
+[dependency-groups]
+dev = [
+    "pytest-docker>=3.2.3",
+    "pytest>=8.4.2",
+    "httpx>=0.28.1",
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra"
+testpaths = [
+    "tests",
+]
+norecursedirs =  ["tests/_old_image_tests"]

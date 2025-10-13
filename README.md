@@ -2,58 +2,57 @@
 
 Replacement for jp2iser/tizer. Converts various image resources into JPEG2000 and a collection of thumbnails.
 
-## Getting Started
 
-The easiest way to get this running is using Docker.
+## Dependencies
 
-```bash
-# build
-docker build -t appetiser:latest .
+### Kakadu
 
-# run
-docker run -it --rm -p 5080:80 appetiser:latest
+Appetiser is dependent on being able to access the compiled binaries for Kakadu as a tarball. In production it is expected that this will be an S3 file location that appetiser has access to at run-time, set with the environment variable: 
+
+```sh
+KDU_BINARIES=s3://bucket/path-/to/kdu/binaries.tar
 ```
 
-Appetiser needs access to Kakadu binaries. The default location of these binaries is specified by the `KAKADU_APPS_LOCATION` environment variable. Relevant AWS credentials will need to be passed to the docker container.
+This is downloaded to the location `/kdu_src/kdu.tar` within the running container. convert
 
-You will also need a volume mount for reading/writing images. Files are not passed as part of the request, instead a `source` parameter points to the file on disk.
+For local development using docker compose, the `./local_data/kdu_src` directory is mapped to `/kdu_src` within the appetiser container. A copy of the Kakadu binaries should be placed in the `./local_data/kdu_src/` directory, and symlinked to `./local_data/kdu_src/kdu.tar` 
 
-e.g.
-```bash
-docker run -it --rm -p 5080:80 \
--e KAKADU_APPS_LOCATION=s3://my-s3-bucket/kdu77-apps.tar.gz \
--e AWS_ACCESS_KEY_ID=mykey \
--e AWS_SECRET_ACCESS_KEY=mysecretkey \
--v /path/to/scratch:/scratch \
-appetiser:latest
+### Python 
+Python dependencies for appetiser are managed using [uv](https://docs.astral.sh/uv/). This is the case both for app dependencies, that are installed by uv in the docker image, and development dependencies, that are used for testing and tooling. 
+
+Development and testing dependencies should be added using the `--dev` flag, e.g. 
+
+```sh
+uv add --dev httpx
 ```
 
-### Docker Compose
-
-There is a docker-compose file to ease running above, see .env.dist for example .env file.
-
-```bash
-docker-compose up
+Although the app is containerised, it will be necessary to install the project dependencies for local development via:
+```sh 
+uv sync
 ```
 
-## Converting an Image
+### OS
 
-Make a POST to `/convert` to start conversion process. The source image must be in a folder location that is accessible to the appetiser application.
+Pillow has a number of OS level dependencies for dealing with various image formats that are installed in the Docker image. As we're installing Pillow through `uv` (previously `pip`) rather than `apt` this is required to ensure support for the required image formats. These seem to correspond with the [External libraries](https://pillow.readthedocs.io/en/stable/installation/building-from-source.html) in the Pillow docs.
 
-Sample payload (all folder locations are relative to `/opt/appetiser/`):
+## Running locally
 
-```json
-{
-    "imageId": "test-appetiser",
-    "jobId": "test-appetiser_job",
-    "source": "/scratch/test-image.jpg",
-    "thumbSizes": [ 30, 100, 400 ],
-    "operation": "ingest",
-    "optimisation": "kdu_med",
-    "origin": "my_origin",
-    "destination": "/scratch/out/the_converted.jp2",
-    "thumbDir": "/scratch/out/thumbnails/"
-}
+A [docker-compose.yml](./docker-compose.yml) file is provided for local development. This contains a number of volume mappings for local files, so the following must exist in the local directory: 
+
+- `./local_data/kdu_src`: Directory containing the Kakadu binaries as described [above](#kakadu). gitingored.
+- `./local_data/output`: Output directory mapped to `/test_output` and used in API examples and tests. gitignored.  
+
+## Running tests 
+
+Integration tests can be found in [./tests](./tests) and should be run with: 
+```sh 
+uv run pytest
 ```
 
-> Note that the destination _must_ end in "jp2" or kdu_compress call will fail.
+These tests are dependent on `pytest-docker`, and use the [./tests/docker-compose.test.yml](./tests/docker-compose.test.yml) file. 
+
+
+## API Documentation 
+
+OpenAPI docs for the appetiser API can be found at [http://localhost:8000/docs](http://localhost:8000/docs) on a locally running instance of appetiser. These provide documentation and examples for the `convert/` endpoint, along with expected types. 
+
