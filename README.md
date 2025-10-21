@@ -56,3 +56,10 @@ These tests are dependent on `pytest-docker`, and use the [./tests/docker-compos
 
 OpenAPI docs for the appetiser API can be found at [http://localhost:8000/docs](http://localhost:8000/docs) on a locally running instance of appetiser. These provide documentation and examples for the `convert/` endpoint, along with expected types. 
 
+## Customising
+
+The following environment variables can be used to configure the service
+
+| EnvVar         | Description                                     | Default |
+| -------------- | ----------------------------------------------- | ------- |
+| `JPEG_QUALITY` | Integer, 0-100, controls thumbnail jpeg quality | 90      |
