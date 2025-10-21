@@ -25,6 +25,8 @@ app = fastapi.FastAPI(title="appetiser")
 def get_convert_config():
     return ConvertConfig()
 
+# call to validate config is correct
+get_convert_config()
 
 @app.get("/ping")
 def ping():

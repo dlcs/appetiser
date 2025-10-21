@@ -240,6 +240,7 @@ def create_thumbnails(
             width=calc_thumb_info.width,
             height=calc_thumb_info.height,
             dest_path=calc_thumb_info.path,
+            config=config
         )
         thumbnail_info.append(
             ThumbInfo(

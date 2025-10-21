@@ -8,6 +8,7 @@ from PIL import (
 )
 from PIL.Image import Image as PILImage
 
+from .config import ConvertConfig
 from .kdu import IMAGE_MODES
 
 logger = logging.getLogger(__name__)
@@ -278,7 +279,7 @@ def scale_dimensions_to_fit(
 
 
 def resize_and_save_img(
-    img: PILImage, width: int, height: int, dest_path: Path
+    img: PILImage, width: int, height: int, dest_path: Path, config: ConvertConfig
 ) -> PILImage:
     """Resize a PIL Image so that it fits within a square of the provided size,
     and saves this file to the provided dest_path.
@@ -287,6 +288,6 @@ def resize_and_save_img(
     """
     img = img.resize((width, height), resample=Image.LANCZOS)
     logger.debug(f"Image resized: {width=}, {height=})")
-    img.save(dest_path, quality=90)
-    logger.debug(f"Resized image saved to: {dest_path}")
+    img.save(dest_path, quality=config.JPEG_QUALITY)
+    logger.debug(f"Resized image saved to: {dest_path}. Quality: {config.JPEG_QUALITY}")
     return img
