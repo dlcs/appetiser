@@ -167,25 +167,33 @@ def _image_has_transparency(img: PILImage) -> bool:
     return False
 
 
+CMYK_COLOUR_PROFILE = str(
+    Path(__file__).resolve().parent / "color_profiles/GRACoL2006_Coated1v2.icc"
+)
+
+
 def _convert_img_colour_profile(img: PILImage, img_filename: str = "") -> PILImage:
     """If the image has ICC profile information, apply a transformation to this
     image from that ICC colour profile to the sRGB colour profile.
     """
+    source_profile = None
     img_colour_profile_bytes = img.info.get("icc_profile")
     if img_colour_profile_bytes:
         logger.debug(f"Extracting embedded colour profile: {img_filename}")
-        img_colour_profile = ImageCms.ImageCmsProfile(
-            io.BytesIO(img_colour_profile_bytes)
-        )
-        img_colour_profile_name = ImageCms.getProfileName(img_colour_profile)
-        logger.debug(f"Using icc colour profile: {img_colour_profile_name}")
+        source_profile = ImageCms.ImageCmsProfile(io.BytesIO(img_colour_profile_bytes))
+    elif img.mode == "CMYK":
+        logger.debug(f"Loading default CMYK colour profile: {CMYK_COLOUR_PROFILE}")
+        source_profile = ImageCms.ImageCmsProfile(CMYK_COLOUR_PROFILE)
+    if source_profile:
+        source_profile_name = ImageCms.getProfileName(source_profile)
+        logger.debug(f"Using icc colour profile: {source_profile_name}")
         sRGB_profile = ImageCms.createProfile("sRGB")
         logger.debug(
-            f"Converting colour profile: {img_colour_profile_name} to {sRGB_profile.profile_description}, {img_filename}"
+            f"Converting colour profile: {source_profile_name} to {sRGB_profile.profile_description}, {img_filename}"
         )
         output_mode = "RGBA" if _image_has_transparency(img) else "RGB"
         img = ImageCms.profileToProfile(
-            img, img_colour_profile, sRGB_profile, outputMode=output_mode
+            img, source_profile, sRGB_profile, outputMode=output_mode
         )
 
     return img
@@ -207,6 +215,7 @@ def _convert_img_to_tiff(filepath: Path) -> tuple[Path, dict]:
         )
         logger.debug("%s: saving as raw to %s", filepath, tiff_filepath)
         img.save(tiff_filepath, compression=None)
+        img_info["mode"] = img.mode
     return tiff_filepath, img_info
 
 
