@@ -3,7 +3,7 @@ from .utils import (
 )
 
 
-def test_convert_image_with_transparency(appetiser_service, fixtures_dir, output_dir):
+def test_convert_cmyk_image(appetiser_service, fixtures_dir, output_dir):
     convert_test_runner(
         appetiser_service=appetiser_service,
         output_dir=output_dir,
