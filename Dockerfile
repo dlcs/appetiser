@@ -5,24 +5,25 @@ ENV APPETISER_DIR=/opt/appetiser
 ENV TMPDIR=$APPETISER_DIR/tmp
 ENV OUTPUT_DIR=$APPETISER_DIR/out/
 
-RUN apt-get update -y && apt-get install -y \
-  cmake=3.31.6-2 \
-  netpbm=2:11.10.02-1 \
-  ghostscript=10.05.1~dfsg-1 \
-  libgs10=10.05.1~dfsg-1 \
-  libgs10-common=10.05.1~dfsg-1 \
-  libffi-dev=3.4.8-2 \
-  libjpeg-turbo-progs=1:2.1.5-4 \
-  libtiff5-dev=4.7.0-3 \
-  libjpeg62-turbo-dev=1:2.1.5-4 \
-  zlib1g-dev=1:1.3.dfsg+really1.3.1-1+b1 \
-  liblcms2-dev=2.16-2 \
-  libwebp-dev=1.5.0-0.1 \
-  tcl8.6-dev=8.6.16+dfsg-1 \
-  tk8.6-dev=8.6.16-1 \
-  python3-tk=3.13.5-1\
-  libharfbuzz-dev=10.2.0-1+b1 \
-  libfribidi-dev=1.0.16-1
+RUN apt-get update -y && apt-get install --no-install-recommends -y \
+  cmake \
+  netpbm \
+  ghostscript \
+  libgs10 \
+  libgs10-common \
+  libffi-dev \
+  libjpeg-turbo-progs \
+  libtiff5-dev \
+  libjpeg62-turbo-dev \
+  zlib1g-dev \
+  liblcms2-dev \
+  libwebp-dev \
+  tcl8.6-dev \
+  tk8.6-dev \
+  python3-tk \
+  libharfbuzz-dev \
+  libfribidi-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY ./appetiser/ $APPETISER_DIR/appetiser/
 COPY ./pyproject.toml $APPETISER_DIR
