@@ -47,12 +47,7 @@ def convert_image_to_jp2(
     else:
         image_mode = image_info.get("mode")
         logger.debug(
-            "Converting with colour profile: {prepared_source=}, {image_mode=}"
-        )
-        logger.debug(
-            "%s: Being used for conversion to JPEG2000, with colour mode: %s",
-            prepared_source,
-            image_mode,
+            f"Converting with colour profile: {prepared_source=}, {image_mode=}"
         )
         kdu_compress(
             config=config,
@@ -240,7 +235,7 @@ def create_thumbnails(
             width=calc_thumb_info.width,
             height=calc_thumb_info.height,
             dest_path=calc_thumb_info.path,
-            config=config
+            config=config,
         )
         thumbnail_info.append(
             ThumbInfo(
