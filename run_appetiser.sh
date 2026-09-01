@@ -23,9 +23,9 @@ export KDU_EXPAND=/usr/local/bin/kdu_expand
 
 mkdir -p $KDU_LIB
 
-cp $KDU_SRC_DIR/kakadu-[0-9].[0-9].[0-9]/bin/Linux-x86-64-gcc/kdu_compress $KDU_COMPRESS
-cp $KDU_SRC_DIR/kakadu-[0-9].[0-9].[0-9]/bin/Linux-x86-64-gcc/kdu_expand $KDU_EXPAND
-cp $KDU_SRC_DIR/kakadu-[0-9].[0-9].[0-9]/lib/Linux-x86-64-gcc/* $KDU_LIB
+cp $KDU_SRC_DIR/kakadu-*/bin/Linux-x86-64-gcc/kdu_compress $KDU_COMPRESS
+cp $KDU_SRC_DIR/kakadu-*/bin/Linux-x86-64-gcc/kdu_expand $KDU_EXPAND
+cp $KDU_SRC_DIR/kakadu-*/lib/Linux-x86-64-gcc/* $KDU_LIB
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$KDU_LIB
 
