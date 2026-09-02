@@ -262,29 +262,28 @@ def scale_dimensions_to_fit(
 
     dec_width = decimal.Decimal(width)
     dec_height = decimal.Decimal(height)
-    width_scale = decimal.Decimal(0.0)
-    if req_width:
+
+    if req_width and req_height:
+        # this is confined - we don't support mutation
         dec_req_width = decimal.Decimal(req_width)
-        width_scale = dec_req_width / dec_width
-
-    height_scale = decimal.Decimal(0.0)
-    if req_height:
         dec_req_height = decimal.Decimal(req_height)
-        height_scale = dec_req_height / dec_height
+        scale = min(dec_req_width / dec_width, dec_req_height / dec_height)
+        scaled_width = int((dec_width * scale).to_integral_exact())
+        scaled_height = int((dec_height * scale).to_integral_exact())
 
-    if not height_scale and width_scale:
-        height_scale = width_scale
-    if not width_scale and height_scale:
-        width_scale = height_scale
+        logger.debug(
+            f"Confined. Final: ({scaled_width=}. {scaled_height=}). Params: ({scale=}. {width=}, {height=}, {req_width=}, {req_height=})",
+        )
+
+        return scaled_width, scaled_height
+
+    # if we are here we have width OR height
+    final_width = int(req_width if req_width else width * req_height / dec_height)
+    final_height = int(req_height if req_height else height * req_width / dec_width)
     logger.debug(
-        f"Scale factor calculated as: ({width_scale=}, {height_scale=}, {width=}, {height=}, {req_width=}, {req_height=})",
+        f"Single dimension. Final: ({final_width=}. {final_height=}). Params: {width=}, {height=}, {req_width=}, {req_height=})",
     )
-    scaled_int_width = int((dec_width * width_scale).to_integral_exact())
-    scaled_int_height = int((dec_height * height_scale).to_integral_exact())
-    logger.debug(
-        f"Scaled image dimensions: ({dec_width=}, {dec_height=}, {scaled_int_width=}, {scaled_int_height=})",
-    )
-    return scaled_int_width, scaled_int_height
+    return final_width, final_height
 
 
 def resize_and_save_img(
