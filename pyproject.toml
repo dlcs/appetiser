@@ -6,9 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "awscli>=1.42.19",
-    "fastapi[all,standard]>=0.116.2",
-    "pillow>=11.3.0",
-    "pyuwsgi>=2.0.30",
+    "fastapi[all,standard]>=0.163.1",
+    "pillow>=13.0.0",
 ]
 
 [dependency-groups]
