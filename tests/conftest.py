@@ -48,7 +48,7 @@ def fixtures_dir(tests_dir) -> SharedHostContainerDirectory:
     """
     return SharedHostContainerDirectory(
         host_path=(tests_dir / "fixtures"),
-        container_path=pathlib.Path("/test_fixtures"),
+        container_path=pathlib.PurePosixPath("/test_fixtures"),
     )
 
 
@@ -61,5 +61,5 @@ def output_dir(tests_dir) -> Generator[SharedHostContainerDirectory, None, None]
         host_path = pathlib.Path(tmpdir)
         yield SharedHostContainerDirectory(
             host_path=host_path,
-            container_path=pathlib.Path(f"/test_output/{host_path.name}"),
+            container_path=pathlib.PurePosixPath(f"/test_output/{host_path.name}"),
         )
